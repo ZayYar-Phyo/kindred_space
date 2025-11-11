@@ -142,83 +142,73 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <style>
-    /* Constrain map wrapper to prevent overflow */
     .map-wrapper {
-        height: 256px;
-        max-height: 256px;
+        height: 300px;
         width: 100%;
-        max-width: 100%;
         position: relative;
-        box-sizing: border-box;
-        overflow: hidden;
         border-radius: 0.5rem;
+        overflow: hidden;
+        z-index: 1;
     }
     
-    /* Ensure map container fills wrapper without overflowing */
     #map {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        position: relative !important;
-        box-sizing: border-box !important;
-        overflow: hidden !important;
-    }
-    
-    /* Constrain all Leaflet internal elements */
-    #map .leaflet-container {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: 100% !important;
-        max-height: 100% !important;
-        overflow: hidden !important;
-        position: relative !important;
-    }
-    
-    /* Prevent Leaflet panes from overflowing */
-    #map .leaflet-pane,
-    #map .leaflet-map-pane,
-    #map .leaflet-tile-pane,
-    #map .leaflet-overlay-pane,
-    #map .leaflet-shadow-pane,
-    #map .leaflet-marker-pane,
-    #map .leaflet-tooltip-pane,
-    #map .leaflet-popup-pane {
-        max-width: 100% !important;
-        overflow: hidden !important;
-    }
-    
-    /* Constrain tile container */
-    #map .leaflet-tile-container img {
-        max-width: none !important;
-    }
-    
-    /* Ensure zoom controls stay within map bounds */
-    #map .leaflet-control-container {
-        position: absolute;
-        z-index: 1000;
-    }
-    
-    /* Location fieldset container - ensure it contains the map */
-    .card form > div.mb-6 {
+        width: 100%;
+        height: 100%;
         position: relative;
-        overflow: visible;
-        width: 100%;
-        max-width: 100%;
+        z-index: 1;
     }
     
-    /* Prevent any horizontal overflow from map */
-    .card {
-        overflow-x: hidden;
-        overflow-y: visible;
+    #map .leaflet-container {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        z-index: 1;
     }
     
-    /* Form container should not create scroll issues */
-    .card form {
-        overflow-x: hidden;
-        overflow-y: visible;
-        width: 100%;
-        max-width: 100%;
+    #map .leaflet-control-zoom {
+        position: absolute !important;
+        top: 10px !important;
+        left: 10px !important;
+        z-index: 1000 !important;
+    }
+    
+    #map .leaflet-control-container {
+        position: absolute !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none !important;
+    }
+    
+    #map .leaflet-control {
+        pointer-events: auto !important;
+    }
+    
+    #map .leaflet-pane {
+        z-index: 400;
+    }
+    
+    #map .leaflet-tile-pane {
+        z-index: 200;
+    }
+    
+    #map .leaflet-overlay-pane {
+        z-index: 400;
+    }
+    
+    #map .leaflet-shadow-pane {
+        z-index: 500;
+    }
+    
+    #map .leaflet-marker-pane {
+        z-index: 600;
+    }
+    
+    #map .leaflet-tooltip-pane {
+        z-index: 650;
+    }
+    
+    #map .leaflet-popup-pane {
+        z-index: 700;
     }
 </style>
 
@@ -253,7 +243,7 @@
         // Ensure container has proper dimensions before map init
         const mapWrapper = mapContainer.parentElement;
         if (mapWrapper) {
-            mapWrapper.style.height = '256px';
+            mapWrapper.style.height = '300px';
             mapWrapper.style.width = '100%';
         }
         
