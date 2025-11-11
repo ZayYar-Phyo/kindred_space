@@ -1,0 +1,433 @@
+{% extends 'layouts/b.html' %}
+
+{% block content %}
+
+<h1>投稿を作成</h1>
+<div class="card !p-8" x-data="{ postType: 'GIVE' }">
+    
+    {% comment %} <div class="flex items-center mb-6">
+        <img class="h-5 object-cover mr-1" src="https://img.icons8.com/small/96/333333/search--v1.png"/>
+        <a href="https://www.flickr.com/explore" target="_blank" class="hover:underline text-gray-500">Find an image on Flickr</a>
+    </div> {% endcomment %}
+
+    <!-- Toggle Buttons -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+        <button 
+            type="button"
+            @click="postType = 'GIVE'; document.getElementById('id_post_type').value = 'GIVE'; document.getElementById('id_reason').placeholder = 'なぜこれを提供しますか？';"
+            :class="postType === 'GIVE' ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
+            class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
+        >
+            {% comment %} <span class="text-4xl mb-2">🎁</span> {% endcomment %}
+            <span class="text-xl font-bold">共有</span>
+        </button>
+        <button 
+            type="button"
+            @click="postType = 'REQUEST'; document.getElementById('id_post_type').value = 'REQUEST'; document.getElementById('id_reason').placeholder = 'このアイテム/スキルがなぜ必要ですか？';"
+            :class="postType === 'REQUEST' ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
+            class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
+        >
+            {% comment %} <span class="text-4xl mb-2">🙏</span> {% endcomment %}
+            <span class="text-xl font-bold">リクエスト</span>
+        </button>
+    </div>
+
+    <form method='POST' enctype="multipart/form-data" x-data="{ usingCurrent: false }">
+        {% csrf_token %}
+        {{ form.post_type }}
+        
+        <!-- Location Fieldset -->
+        <div class="mb-6">
+            <h3 class="mb-2">アイテム/サービスの場所</h3>
+            <div class="flex gap-2 mb-3">
+                <button type="button" class="button" @click="usingCurrent = true; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function(p){ const lat = p.coords.latitude.toFixed(6); const lng = p.coords.longitude.toFixed(6); const latInput = document.getElementById('id_latitude'); const lngInput = document.getElementById('id_longitude'); latInput.value = lat; lngInput.value = lng; if(window.__leafletMarker && window.__leafletMap){ window.__leafletMarker.setLatLng([lat, lng]); window.__leafletMap.setView([lat, lng], 15); setTimeout(function(){ window.__leafletMap.invalidateSize(); }, 50); } window.__reverseGeocode(lat, lng); }); }">現在地を使用</button>
+                <button type="button" class="button secondaryAction" @click="usingCurrent = false">手動で入力</button>
+            </div>
+
+            <!-- Postal Code lookup -->
+            <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 mb-3">
+                <div>
+                    <label for="postal_code_input" class="block mb-2 font-semibold">郵便番号</label>
+                    <input id="postal_code_input" type="text" inputmode="numeric" pattern="\d{7}" maxlength="7" placeholder="例: 5300001" class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)] h-[3.3rem]" />
+                    <p class="text-sm text-gray-500 mt-1">ハイフンなし7桁（例: 5300001）</p>
+                </div>
+                <div class="flex items-center justify-end md:justify-start">
+                    <button type="button" id="postal_lookup_btn" class="button w-full md:w-auto">住所を検索</button>
+                </div>
+            </div>
+
+            <!-- Hidden lat/lng fields to submit -->
+            <div class="hidden">
+                {{ form.latitude }}
+                {{ form.longitude }}
+            </div>
+
+            <!-- Display Area (Read-only) -->
+            <div class="mb-3">
+                <label for="{{ form.display_area.id_for_label }}" class="block mb-2 font-semibold">{{ form.display_area.label }}</label>
+                {{ form.display_area }}
+            </div>
+
+            <!-- Map -->
+            <div class="map-wrapper mb-3">
+                <div id="map"></div>
+            </div> 
+
+            <!-- Privacy -->
+            <label class="inline-flex items-center gap-2">
+                {{ form.show_general_area_only }}
+                <span>{{ form.show_general_area_only.label }}</span>
+            </label>
+        </div>
+
+        <!-- Image Field -->
+        <div class="mb-4">
+            <label for="{{ form.image.id_for_label }}" class="block mb-2 font-semibold">{{ form.image.label }}</label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <ul class="errorlist">
+                    {% for error in form.image.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Dynamic Reason Field -->
+        {% comment %} <div class="mb-4" x-show="true">
+            <label for="{{ form.reason.id_for_label }}" class="block mb-2 font-semibold" x-text="postType === 'GIVE' ? 'なぜこれを提供しますか？' : 'このアイテム/スキルがなぜ必要ですか？'"></label>
+            {{ form.reason }}
+            {% if form.reason.errors %}
+                <ul class="errorlist">
+                    {% for error in form.reason.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div> {% endcomment %}
+
+        <!-- Body Field -->
+        <div class="mb-4">
+            <label for="{{ form.body.id_for_label }}" class="block mb-2 font-semibold">{{ form.body.label }}</label>
+            {{ form.body }}
+            {% if form.body.errors %}
+                <ul class="errorlist">
+                    {% for error in form.body.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Tags Field -->
+        <div class="mb-4">
+            <label class="block mb-2 font-semibold">{{ form.tags.label }}</label>
+            {{ form.tags }}
+            {% if form.tags.errors %}
+                <ul class="errorlist">
+                    {% for error in form.tags.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="mt-1" x-text="postType === 'GIVE' ? 'このアイテムを共有！' : 'リクエストを投稿'">このアイテムを共有！</button>
+        <a class="button secondaryAction ml-1" href="{{ request.META.HTTP_REFERER }}">キャンセル</a>
+    </form>
+    </div>
+
+<!-- Leaflet CSS/JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<style>
+    /* Constrain map wrapper to prevent overflow */
+    .map-wrapper {
+        height: 256px;
+        max-height: 256px;
+        width: 100%;
+        max-width: 100%;
+        position: relative;
+        box-sizing: border-box;
+        overflow: hidden;
+        border-radius: 0.5rem;
+    }
+    
+    /* Ensure map container fills wrapper without overflowing */
+    #map {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        position: relative !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+    }
+    
+    /* Constrain all Leaflet internal elements */
+    #map .leaflet-container {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+        position: relative !important;
+    }
+    
+    /* Prevent Leaflet panes from overflowing */
+    #map .leaflet-pane,
+    #map .leaflet-map-pane,
+    #map .leaflet-tile-pane,
+    #map .leaflet-overlay-pane,
+    #map .leaflet-shadow-pane,
+    #map .leaflet-marker-pane,
+    #map .leaflet-tooltip-pane,
+    #map .leaflet-popup-pane {
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    
+    /* Constrain tile container */
+    #map .leaflet-tile-container img {
+        max-width: none !important;
+    }
+    
+    /* Ensure zoom controls stay within map bounds */
+    #map .leaflet-control-container {
+        position: absolute;
+        z-index: 1000;
+    }
+    
+    /* Location fieldset container - ensure it contains the map */
+    .card form > div.mb-6 {
+        position: relative;
+        overflow: visible;
+        width: 100%;
+        max-width: 100%;
+    }
+    
+    /* Prevent any horizontal overflow from map */
+    .card {
+        overflow-x: hidden;
+        overflow-y: visible;
+    }
+    
+    /* Form container should not create scroll issues */
+    .card form {
+        overflow-x: hidden;
+        overflow-y: visible;
+        width: 100%;
+        max-width: 100%;
+    }
+</style>
+
+<script>
+    // Initialize post_type and placeholder on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const postTypeField = document.getElementById('id_post_type');
+        const reasonField = document.getElementById('id_reason');
+        const latInput = document.getElementById('id_latitude');
+        const lngInput = document.getElementById('id_longitude');
+        const displayAreaInput = document.getElementById('id_display_area');
+        const postalInput = document.getElementById('postal_code_input');
+        const postalBtn = document.getElementById('postal_lookup_btn');
+        if (postTypeField && !postTypeField.value) {
+            postTypeField.value = 'GIVE';
+        }
+        if (reasonField && !reasonField.placeholder) {
+            reasonField.placeholder = 'なぜこれを共有しますか？';
+        }
+
+        // Leaflet Map Init (default center: 東京駅)
+        const defaultLat = latInput && latInput.value ? parseFloat(latInput.value) : 35.681236;
+        const defaultLng = lngInput && lngInput.value ? parseFloat(lngInput.value) : 139.767125;
+        
+        // Initialize map after ensuring container is ready
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+            console.error('Map container not found');
+            return;
+        }
+        
+        // Ensure container has proper dimensions before map init
+        const mapWrapper = mapContainer.parentElement;
+        if (mapWrapper) {
+            mapWrapper.style.height = '256px';
+            mapWrapper.style.width = '100%';
+        }
+        
+        // Initialize map with constraints
+        const map = L.map('map', {
+            preferCanvas: false,
+            zoomControl: true,
+            maxBounds: [[20, 120], [46, 150]], // Constrain to Japan area
+            maxBoundsViscosity: 1.0
+        }).setView([defaultLat, defaultLng], 12);
+        
+        window.__leafletMap = map;
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            minZoom: 5,
+            attribution: '&copy; OpenStreetMap contributors',
+            noWrap: false
+        }).addTo(map);
+        
+        const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+        window.__leafletMarker = marker;
+
+        // Keep map sized correctly - call after a short delay to ensure DOM is ready
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+        
+        map.whenReady(() => {
+            map.invalidateSize();
+        });
+        
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                map.invalidateSize();
+            }, 150);
+        });
+
+        // Update inputs on marker drag
+        marker.on('dragend', function(e) {
+            const pos = marker.getLatLng();
+            if (latInput) latInput.value = pos.lat.toFixed(6);
+            if (lngInput) lngInput.value = pos.lng.toFixed(6);
+            if (latInput && lngInput) {
+                window.__reverseGeocode(latInput.value, lngInput.value);
+            }
+        });
+
+        // Update marker when manual inputs change
+        function tryUpdateMarker() {
+            const lat = parseFloat(latInput.value);
+            const lng = parseFloat(lngInput.value);
+            if (!isNaN(lat) && !isNaN(lng)) {
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], 14);
+                // Ensure map maintains proper size
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 50);
+                window.__reverseGeocode(lat.toFixed(6), lng.toFixed(6));
+            }
+        }
+        if (latInput) latInput.addEventListener('change', tryUpdateMarker);
+        if (lngInput) lngInput.addEventListener('change', tryUpdateMarker);
+
+        // Reverse Geocoding using Nominatim (OpenStreetMap)
+        window.__reverseGeocode = async function(lat, lng) {
+            try {
+                const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&accept-language=ja`;
+                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+                if (!res.ok) return;
+                const data = await res.json();
+                const a = data && data.address ? data.address : {};
+                // Prefer Japanese-like ordering: prefecture city ward suburb
+                const parts = [
+                    a.state,              // 都道府県
+                    a.city || a.town || a.village || a.municipality, // 市/町/村
+                    a.city_district || a.district || a.county || a.ward, // 区/郡
+                    a.suburb || a.neighbourhood || a.hamlet // 町名/近隣
+                ].filter(Boolean);
+                const display = parts.join(' ');
+                if (displayAreaInput) displayAreaInput.value = display || (data.display_name || '');
+            } catch (e) {
+                // Fail silently; keep coordinates
+            }
+        };
+
+        // Initial reverse geocode for defaults
+        if (latInput && lngInput && latInput.value && lngInput.value) {
+            window.__reverseGeocode(latInput.value, lngInput.value);
+        } else {
+            window.__reverseGeocode(defaultLat, defaultLng);
+        }
+
+        // Postal code lookup via backend endpoint
+        async function lookupPostal() {
+            const raw = (postalInput?.value || '').replace(/[^0-9]/g, '');
+            if (!raw || raw.length !== 7) {
+                alert('郵便番号は7桁の数字で入力してください。');
+                return;
+            }
+            
+            // Disable button during request
+            if (postalBtn) {
+                postalBtn.disabled = true;
+                postalBtn.textContent = '検索中...';
+            }
+            
+            try {
+                const res = await fetch(`/api/geocode?postal_code=${encodeURIComponent(raw)}`, { 
+                    headers: { 'Accept': 'application/json' } 
+                });
+                
+                const data = await res.json();
+                
+                // Check if response indicates success
+                if (data.success === true && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
+                    const lat = data.latitude.toFixed(6);
+                    const lng = data.longitude.toFixed(6);
+                    
+                    // Update hidden latitude/longitude fields
+                    if (latInput) latInput.value = lat;
+                    if (lngInput) lngInput.value = lng;
+                    
+                    // Update map and marker
+                    if (window.__leafletMarker && window.__leafletMap) {
+                        window.__leafletMarker.setLatLng([lat, lng]);
+                        window.__leafletMap.setView([lat, lng], 15);
+                        // Ensure map size is maintained after update
+                        setTimeout(() => {
+                            window.__leafletMap.invalidateSize();
+                        }, 50);
+                    }
+                    
+                    // Update display area field
+                    if (data.display_area && displayAreaInput) {
+                        displayAreaInput.value = data.display_area;
+                    } else if (displayAreaInput) {
+                        // Fallback: try reverse geocoding if display_area not provided
+                        window.__reverseGeocode(lat, lng);
+                    }
+                } else {
+                    // Handle error response
+                    const errorMsg = data.error || '住所の検索に失敗しました。郵便番号をご確認ください。';
+                    alert(errorMsg);
+                }
+            } catch (e) {
+                alert('ネットワークエラーが発生しました。インターネット接続をご確認ください。');
+                console.error('Postal code lookup error:', e);
+            } finally {
+                // Re-enable button
+                if (postalBtn) {
+                    postalBtn.disabled = false;
+                    postalBtn.textContent = '住所を検索';
+                }
+            }
+        }
+        
+        if (postalBtn) {
+            postalBtn.addEventListener('click', lookupPostal);
+            // Also allow Enter key in postal code input
+            if (postalInput) {
+                postalInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        lookupPostal();
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+{% endblock %}
