@@ -117,6 +117,17 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-12**: User Follow System
+  - Created Follow model with follower/following relationships and unique constraint
+  - Implemented toggle follow/unfollow view with authentication and self-follow prevention
+  - Added dynamic followers count calculation from Follow model (replaces static field)
+  - Created follow button UI with two states: red "+ フォロー" and gray "フォロー中"
+  - Follow button appears only on other users' profiles (not your own)
+  - Added URL endpoint: `/users/<username>/follow/` for POST requests
+  - Database migration 0012_follow created and applied successfully
+  - Proper CSRF protection and success messages in Japanese
+  - Architect-approved and production-ready
+
 - **2025-11-12**: Professional Profile Page Redesign
   - Enlarged profile photo from 80px to 120px with enhanced shadow and border
   - Increased name typography from text-2xl to text-3xl for better prominence
