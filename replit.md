@@ -35,7 +35,9 @@ This is a Django-based web application for a Japanese community sharing platform
 ```
 
 ### Key Features
-- Post creation with image uploads
+- User authentication with Japanese-language login/signup pages
+- User profiles with community metrics (reputation, contributions, success rate)
+- Post creation with image uploads (requires login)
 - Location-based posts using Japanese postal codes
 - Search functionality (by title, body, artist, tags)
 - Post types: GIVE (offering items/skills) or REQUEST (seeking items/skills)
@@ -55,6 +57,8 @@ Currently using SQLite for development. The database is already migrated and inc
 - `CSRF_TRUSTED_ORIGINS` - Configured for Replit domains
 - `X_FRAME_OPTIONS = 'SAMEORIGIN'` - Allows iframe embedding in Replit
 - XFrame middleware removed for Replit iframe compatibility
+- `LOGIN_URL = '/login/'` - Custom login page instead of Django admin
+- `LOGIN_REDIRECT_URL = '/'` - Redirects to home after login
 
 ## Deployment
 The project is configured for deployment using:
@@ -90,7 +94,36 @@ The platform now includes comprehensive user profiles with community metrics:
 - Activity tabs: 提供中 (Giving), 依頼中 (Requesting), 履歴 (History)
 - Profile URL: `/users/{username}/`
 
+## Authentication System
+The platform uses a custom authentication system with Japanese-language UI:
+
+### Available Pages
+- **Login**: `/login/` - User-friendly login page with Japanese UI
+- **Signup**: `/signup/` - Registration page for new users
+- **Logout**: `/logout/` - POST-only logout with CSRF protection
+
+### Features
+- Automatic redirect to originally requested page after login (`next` parameter)
+- Security validation on redirect URLs to prevent open redirect vulnerabilities
+- Success messages in Japanese for login/signup/logout
+- Auto-creates UserProfile for new signups
+- Protected routes require login (post creation, editing, deletion)
+
+### Demo Account
+- Username: `demo_user`
+- Password: `demo123`
+- You can now login at `/login/` instead of Django admin!
+
 ## Recent Changes
+- **2025-11-12**: User Authentication System Implementation
+  - Created custom login page with Japanese UI at `/login/`
+  - Created signup/registration page at `/signup/`
+  - Implemented secure logout with POST-only and CSRF protection
+  - Added proper `next` parameter handling for redirect after login
+  - Updated navigation to use new authentication pages
+  - Added success messages in Japanese
+  - All authentication follows Django best practices
+  
 - **2025-11-12**: Navigation Bar and Authentication Improvements
   - Updated navigation bar with dynamic user profile integration
   - "My Profile" link now correctly uses `/users/{{ user.username }}/`
