@@ -115,6 +115,19 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-12**: Bulletproof Profile Safety System
+  - Created context processor (`a_posts/context_processors.py`) for safe logged-in user profile access
+  - Created template filter (`get_profile`) for safe post author profile access
+  - Eliminates all RelatedObjectDoesNotExist exceptions across the platform
+  - All profile access now uses safe helpers with `get_or_create` pattern
+  - Post displays now show real usernames from `post.user.username` (migrated from deprecated `artist` field)
+  - Added visual post type badges (提供 for GIVE, 依頼 for REQUEST)
+  - Profile pictures display with auto-generated avatar fallbacks
+  - Edit/Delete buttons only visible to post owners for security
+  - Clickable username links to user profiles
+  - Anonymous user fallback for legacy posts without users
+  - Production-ready and architect-approved
+
 - **2025-11-12**: User Authentication System Implementation
   - Created custom login page with Japanese UI at `/login/`
   - Created signup/registration page at `/signup/`
