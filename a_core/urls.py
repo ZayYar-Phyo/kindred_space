@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/geocode', geocode_view, name='geocode'),
     path('users/<str:username>/', profile_view, name='profile'),
     path('users/<str:username>/review/', submit_review_view, name='submit-review'),
+    path('users/<str:username>/follow/', toggle_follow_view, name='toggle-follow'),
 ]
 
 if settings.DEBUG:

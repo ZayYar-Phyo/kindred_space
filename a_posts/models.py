@@ -118,6 +118,23 @@ class Review(models.Model):
         profile.update_reputation_score()
 
 
+class Follow(models.Model):
+    follower = models.ForeignKey(User, on_delete=models.CASCADE, related_name='following',
+                                help_text='User who is following')
+    following = models.ForeignKey(User, on_delete=models.CASCADE, related_name='followers',
+                                 help_text='User being followed')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.follower.username} follows {self.following.username}"
+
+    class Meta:
+        verbose_name = 'Follow'
+        verbose_name_plural = 'Follows'
+        ordering = ['-created_at']
+        unique_together = [['follower', 'following']]
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

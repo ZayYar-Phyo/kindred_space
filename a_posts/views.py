@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import *
+from .models import Post, Tag, UserProfile, Review, Follow
 from .forms import *
 from bs4 import BeautifulSoup
 import requests
@@ -222,6 +222,12 @@ def profile_view(request, username):
     if can_review:
         has_reviewed = Review.objects.filter(reviewer=request.user, reviewee=user).exists()
     
+    is_following = False
+    if request.user.is_authenticated and request.user != user:
+        is_following = Follow.objects.filter(follower=request.user, following=user).exists()
+    
+    followers_count = Follow.objects.filter(following=user).count()
+    
     context = {
         'profile_user': user,
         'profile': profile,
@@ -231,6 +237,8 @@ def profile_view(request, username):
         'review_count': review_count,
         'can_review': can_review,
         'has_reviewed': has_reviewed,
+        'is_following': is_following,
+        'followers_count': followers_count,
     }
     
     return render(request, 'a_posts/profile.html', context)
@@ -308,3 +316,26 @@ def logout_view(request):
         messages.info(request, 'ログアウトしました。')
         return redirect('home')
     return redirect('home')
+
+
+@login_required
+def toggle_follow_view(request, username):
+    if request.method != 'POST':
+        return redirect('profile', username=username)
+    
+    user_to_follow = get_object_or_404(User, username=username)
+    
+    if request.user == user_to_follow:
+        messages.error(request, '自分自身をフォローすることはできません。')
+        return redirect('profile', username=username)
+    
+    follow_relation = Follow.objects.filter(follower=request.user, following=user_to_follow).first()
+    
+    if follow_relation:
+        follow_relation.delete()
+        messages.success(request, f'{user_to_follow.username}さんのフォローを解除しました。')
+    else:
+        Follow.objects.create(follower=request.user, following=user_to_follow)
+        messages.success(request, f'{user_to_follow.username}さんをフォローしました！')
+    
+    return redirect('profile', username=username)

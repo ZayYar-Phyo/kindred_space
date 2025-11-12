@@ -30,15 +30,40 @@
                         {% endif %}
                     </div>
                     
-                    <!-- Edit Profile Button (only visible to profile owner) -->
-                    {% if user.is_authenticated and user == profile_user %}
-                    <a href="#" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg transition">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                        </svg>
-                        プロフィールを編集
-                    </a>
-                    {% endif %}
+                    <!-- Action Buttons -->
+                    <div class="flex gap-2">
+                        <!-- Edit Profile Button (only visible to profile owner) -->
+                        {% if user.is_authenticated and user == profile_user %}
+                        <a href="#" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            プロフィールを編集
+                        </a>
+                        {% endif %}
+                        
+                        <!-- Follow Button (only visible to other authenticated users) -->
+                        {% if user.is_authenticated and user != profile_user %}
+                        <form method="POST" action="{% url 'toggle-follow' profile_user.username %}" class="inline">
+                            {% csrf_token %}
+                            {% if is_following %}
+                            <button type="submit" class="inline-flex items-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-4 py-2 rounded-lg transition border border-gray-400">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                                フォロー中
+                            </button>
+                            {% else %}
+                            <button type="submit" class="inline-flex items-center gap-2 bg-red-500 hover:bg-red-600 text-white font-semibold px-4 py-2 rounded-lg transition border border-red-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                フォロー
+                            </button>
+                            {% endif %}
+                        </form>
+                        {% endif %}
+                    </div>
                 </div>
                 
                 <p class="text-gray-600 text-base mb-2">@{{ profile_user.username }}</p>
@@ -118,7 +143,7 @@
                 <div class="text-sm text-gray-600 font-semibold">成功率</div>
             </div>
             <div class="bg-white p-5 rounded-xl border-2 border-purple-100 hover:border-purple-300 transition">
-                <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ profile.followers_count }}</div>
+                <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ followers_count }}</div>
                 <div class="text-sm text-gray-600 font-semibold">フォロワー</div>
             </div>
         </div>
