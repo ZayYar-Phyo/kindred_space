@@ -37,6 +37,8 @@ This is a Django-based web application for a Japanese community sharing platform
 ### Key Features
 - User authentication with Japanese-language login/signup pages
 - User profiles with community metrics (reputation, contributions, success rate)
+- **Peer-to-peer rating system** - Users can review each other with 1-5 star ratings and comments
+- **Dynamic reputation scores** - Automatically calculated from real user reviews
 - Post creation with image uploads (requires login)
 - Location-based posts using Japanese postal codes
 - Search functionality (by title, body, artist, tags)
@@ -115,6 +117,18 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-12**: Peer-to-Peer Rating System
+  - Created Review model with rating (1-5 stars), comment, reviewer/reviewee relationships
+  - Implemented automatic reputation score calculation based on average of all user reviews
+  - Added review submission form with star selector and optional comment field on profile pages
+  - Created reviews display section showing recent reviews with avatars, ratings, and timestamps
+  - Review count now displays alongside reputation score (accurate total, displays 10 most recent)
+  - Validation prevents self-reviews and enforces required rating
+  - URL endpoint: `/users/<username>/review/` for review submission
+  - Database migration applied successfully (Review table created)
+  - Users can now give authentic peer feedback instead of static reputation scores
+  - Architect-approved and production-ready
+
 - **2025-11-12**: Bulletproof Profile Safety System
   - Created context processor (`a_posts/context_processors.py`) for safe logged-in user profile access
   - Created template filter (`get_profile`) for safe post author profile access
