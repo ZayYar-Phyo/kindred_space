@@ -70,7 +70,35 @@ See `requirements.txt` for all Python dependencies:
 - requests 2.32.3
 - gunicorn 23.0.0
 
+## User Profiles
+The platform now includes comprehensive user profiles with community metrics:
+
+### UserProfile Model Fields
+- **profile_picture**: User's profile image
+- **bio**: Self-introduction (max 500 characters)
+- **reputation_score**: Average rating from transactions (default 5.0)
+- **total_contributions**: Count of successful contributions
+- **success_rate**: Percentage of completed transactions (default 100%)
+- **location_display**: General area for sharing activities
+- **is_verified**: ID verification status
+- **followers_count**: Number of followers/neighbors
+
+### Profile Features
+- Trust metrics display (reputation score with star ratings)
+- Community badges (achievements based on contributions)
+- Contribution summary (stats showing impact)
+- Activity tabs: 提供中 (Giving), 依頼中 (Requesting), 履歴 (History)
+- Profile URL: `/users/{username}/`
+
 ## Recent Changes
+- **2025-11-12**: User Profile Feature Implementation
+  - Created UserProfile model with community metrics
+  - Added user field to Post model for ownership tracking
+  - Created profile view and comprehensive profile template
+  - Implemented trust metrics and contribution statistics
+  - Added automatic profile creation on user registration
+  - Created demo user creation script
+
 - **2025-11-11**: Initial Replit setup
   - Created requirements.txt
   - Configured Django settings for Replit environment
@@ -78,3 +106,4 @@ See `requirements.txt` for all Python dependencies:
   - Set up workflow for development server on port 5000
   - Configured deployment with Gunicorn
   - Added replit.md documentation
+  - Fixed map display and zoom controls overflow issues
