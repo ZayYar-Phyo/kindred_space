@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.utils.http import url_has_allowed_host_and_scheme
 from .models import *
 from .forms import *
 from bs4 import BeautifulSoup
@@ -211,3 +214,53 @@ def profile_view(request, username):
     }
     
     return render(request, 'a_posts/profile.html', context)
+
+
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    next_url = request.POST.get('next') or request.GET.get('next')
+    
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'{username}さん、おかえりなさい！')
+                
+                if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+                    return redirect(next_url)
+                return redirect('home')
+    else:
+        form = AuthenticationForm()
+    
+    return render(request, 'a_posts/login.html', {'form': form, 'next': next_url})
+
+
+def signup_view(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            messages.success(request, f'{user.username}さん、KindredSpaceへようこそ！')
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+    
+    return render(request, 'a_posts/signup.html', {'form': form})
+
+
+def logout_view(request):
+    if request.method == 'POST':
+        logout(request)
+        messages.info(request, 'ログアウトしました。')
+        return redirect('home')
+    return redirect('home')

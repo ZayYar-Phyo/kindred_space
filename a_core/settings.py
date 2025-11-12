@@ -134,5 +134,5 @@ CSRF_TRUSTED_ORIGINS = [
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Authentication settings
-LOGIN_URL = '/admin/login/'
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
