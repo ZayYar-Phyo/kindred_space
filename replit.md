@@ -91,6 +91,15 @@ The platform now includes comprehensive user profiles with community metrics:
 - Profile URL: `/users/{username}/`
 
 ## Recent Changes
+- **2025-11-12**: Navigation Bar and Authentication Improvements
+  - Updated navigation bar with dynamic user profile integration
+  - "My Profile" link now correctly uses `/users/{{ user.username }}/`
+  - Replaced hardcoded user display with actual logged-in user's username
+  - Added dynamic profile picture display (uploaded image or generated avatar)
+  - Implemented authentication checks (show login/logout based on user state)
+  - Added @login_required decorators to post create/edit/delete views
+  - Configured LOGIN_URL and LOGIN_REDIRECT_URL in settings
+  
 - **2025-11-12**: User Profile Feature Implementation
   - Created UserProfile model with community metrics
   - Added user field to Post model for ownership tracking
@@ -98,6 +107,7 @@ The platform now includes comprehensive user profiles with community metrics:
   - Implemented trust metrics and contribution statistics
   - Added automatic profile creation on user registration
   - Created demo user creation script
+  - Data migration to backfill profiles for existing users
 
 - **2025-11-11**: Initial Replit setup
   - Created requirements.txt
