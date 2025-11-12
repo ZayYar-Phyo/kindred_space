@@ -80,6 +80,43 @@ class UserProfile(models.Model):
     def default_avatar_url(self):
         return 'https://img.icons8.com/small/96/A9A9A9/happy.png'
 
+    def update_reputation_score(self):
+        reviews = Review.objects.filter(reviewee=self.user)
+        if reviews.exists():
+            average_rating = reviews.aggregate(models.Avg('rating'))['rating__avg']
+            self.reputation_score = round(average_rating, 1)
+            self.save()
+
+
+class Review(models.Model):
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_given',
+                                help_text='User who wrote the review')
+    reviewee = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews_received',
+                                help_text='User being reviewed')
+    rating = models.IntegerField(choices=[(1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')],
+                                help_text='Rating from 1 to 5 stars')
+    comment = models.TextField(blank=True, default='',
+                              help_text='Optional written feedback')
+    post = models.ForeignKey(Post, on_delete=models.SET_NULL, null=True, blank=True,
+                           related_name='reviews',
+                           help_text='Related post/transaction (optional)')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.reviewer.username} → {self.reviewee.username}: {self.rating}★"
+
+    class Meta:
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
+        ordering = ['-created_at']
+        unique_together = [['reviewer', 'reviewee', 'post']]
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        profile, created = UserProfile.objects.get_or_create(user=self.reviewee)
+        profile.update_reputation_score()
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
