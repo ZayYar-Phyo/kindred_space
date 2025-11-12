@@ -117,6 +117,17 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-12**: Professional Profile Page Redesign
+  - Enlarged profile photo from 80px to 120px with enhanced shadow and border
+  - Increased name typography from text-2xl to text-3xl for better prominence
+  - Added "プロフィールを編集" (Edit Profile) button visible only to profile owner
+  - Enhanced statistics display with text-4xl numbers and hover effects
+  - Upgraded trust metrics bar with gradient background (yellow-50 to orange-50)
+  - Implemented responsive grid layout (stacks on mobile, 3 columns on desktop)
+  - Improved spacing throughout (p-8, gap-6) for cleaner visual hierarchy
+  - All data correctly mapped to backend fields (display_name, bio, reputation_score, etc.)
+  - Architect-approved and production-ready
+
 - **2025-11-12**: Peer-to-Peer Rating System
   - Created Review model with rating (1-5 stars), comment, reviewer/reviewee relationships
   - Implemented automatic reputation score calculation based on average of all user reviews
