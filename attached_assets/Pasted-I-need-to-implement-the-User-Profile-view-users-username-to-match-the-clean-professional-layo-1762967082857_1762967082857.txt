@@ -1,0 +1,42 @@
+I need to implement the User Profile view (/users/{username}/) to match the clean, professional layout shown in the image, replacing the generic text with our custom community data.
+
+Goal: Achieve the visual structure (profile photo, name, rating bar, and centered statistics) and connect the UI elements to the correct backend fields for a community platform.
+
+Task 1: Frontend Structure (HTML & CSS)
+Layout Container: Ensure the entire profile header is contained within a well-styled div (e.g., .profile-header) that provides the necessary padding and background.
+
+Profile Info Row (Image, Name, Rating):
+
+Use CSS Flexbox to align the profile photo (.profile-image), user name, and the rating/verification bar horizontally.
+
+Use a vertical stack for the name and rating details next to the profile photo.
+
+Statistics Bar: Create a clean row for the statistics. Ensure the numbers are large and the labels (e.g., "貢献回数" / "成功率") are small and centered beneath them. Use text-align: center on the container for the stats row.
+
+Task 2: Data Integration and Label Replacement
+The labels need to reflect your non-monetary sharing concept:
+
+Name & Bio:
+
+Replace the generic "Zay Yar" with the user's actual username or display_name.
+
+Replace the empty bio space with the user's bio or self-introduction text.
+
+Rating & Verification:
+
+Rating: Display the live calculated reputation_score (e.g., 4.8) and the corresponding star icons.
+
+Verification: Display the is_verified status (like "本人確認済" or "Verification Pending").
+
+Statistics: Replace the commercial labels with your core metrics:
+
+Replace "出品数" (Items Listed): Use total_contributions (貢献回数).
+
+Replace "フォロワー" (Followers): Use followers_count (フォロワー).
+
+Replace "出品者レベル1" (Seller Level 1): Use a custom label or success_rate (成功率) here, or integrate a simple Badge name.
+
+Task 3: Action Button Functionality
+Ensure the "プロフィールを編集" (Edit Profile) button is only visible to the logged-in owner of the profile being viewed.
+
+Implement the click handler for the "プロフィールを編集" button to direct the user to the profile editing form.
