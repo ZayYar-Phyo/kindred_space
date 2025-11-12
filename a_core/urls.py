@@ -33,6 +33,7 @@ urlpatterns = [
     path('posts/<pk>', post_page_view, name='post'),
     path('api/geocode', geocode_view, name='geocode'),
     path('users/<str:username>/', profile_view, name='profile'),
+    path('users/<str:username>/review/', submit_review_view, name='submit-review'),
 ]
 
 if settings.DEBUG:

@@ -1,6 +1,6 @@
 from django.forms import ModelForm
 from django import forms
-from .models import Post
+from .models import Post, Review
 
 
 # post creation form
@@ -42,4 +42,19 @@ class PostEditForm(ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'rows': 3,  'class': 'font1 text-1xl'}),
             'tags': forms.CheckboxSelectMultiple(),
+        }
+
+
+# review submission form
+class ReviewForm(ModelForm):
+    class Meta:
+        model = Review
+        fields = ['rating', 'comment']
+        labels = {
+            'rating': '評価',
+            'comment': 'コメント（任意）',
+        }
+        widgets = {
+            'rating': forms.RadioSelect(choices=[(5, '⭐⭐⭐⭐⭐'), (4, '⭐⭐⭐⭐'), (3, '⭐⭐⭐'), (2, '⭐⭐'), (1, '⭐')]),
+            'comment': forms.Textarea(attrs={'rows': 3, 'placeholder': 'このユーザーとの取引体験を教えてください...', 'class': 'w-full border rounded-lg p-3'}),
         }

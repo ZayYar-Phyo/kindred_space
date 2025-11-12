@@ -213,14 +213,49 @@ def profile_view(request, username):
     else:
         posts = user.posts.filter(post_type='GIVE').order_by('-created_at')
     
+    reviews = Review.objects.filter(reviewee=user).select_related('reviewer').order_by('-created_at')[:10]
+    review_count = reviews.count()
+    
+    can_review = request.user.is_authenticated and request.user != user
+    has_reviewed = False
+    if can_review:
+        has_reviewed = Review.objects.filter(reviewer=request.user, reviewee=user).exists()
+    
     context = {
         'profile_user': user,
         'profile': profile,
         'posts': posts,
         'current_tab': tab,
+        'reviews': reviews,
+        'review_count': review_count,
+        'can_review': can_review,
+        'has_reviewed': has_reviewed,
     }
     
     return render(request, 'a_posts/profile.html', context)
+
+
+@login_required
+def submit_review_view(request, username):
+    reviewee = get_object_or_404(User, username=username)
+    
+    if request.user == reviewee:
+        messages.error(request, '自分自身をレビューすることはできません。')
+        return redirect('profile', username=username)
+    
+    existing_review = Review.objects.filter(reviewer=request.user, reviewee=reviewee, post__isnull=True).first()
+    
+    if request.method == 'POST':
+        form = ReviewForm(request.POST, instance=existing_review)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.reviewer = request.user
+            review.reviewee = reviewee
+            review.save()
+            messages.success(request, 'レビューを投稿しました！')
+            return redirect('profile', username=username)
+    
+    return redirect('profile', username=username)
 
 
 def login_view(request):
