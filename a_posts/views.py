@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from .models import *
 from .forms import *
 from bs4 import BeautifulSoup
@@ -23,6 +24,7 @@ def home_view(request):
 
 
 # View to handle post creation
+@login_required
 def post_create_view(request):
     form = PostCreateForm()
     
@@ -30,25 +32,27 @@ def post_create_view(request):
         form = PostCreateForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
-            # For uploaded images, optional defaults
+            post.user = request.user
             if not post.title:
                 post.title = 'Untitled'
             post.save()
             form.save_m2m()
-            return redirect('home')  # Redirect to home page after successful post creation
-    return render(request, 'a_posts/post_create.html', {'form' : form})  # Ensure you have a 'post_create.html' template in the correct directory
+            return redirect('home')
+    return render(request, 'a_posts/post_create.html', {'form' : form})
 
 # View to handle post deletion
+@login_required
 def post_delete_view(request, pk):
     post = get_object_or_404(Post, id=pk)
     
     if request.method == 'POST':
         post.delete()
-        messages.success(request, 'Post deleted successfully.')  # Optional: Add a success message
-        return redirect('home')  # Redirect to home page after deletion
-    return render(request, 'a_posts/post_delete.html', {'post': post})  # Ensure you have a 'post_delete.html' template in the correct directory
+        messages.success(request, 'Post deleted successfully.')
+        return redirect('home')
+    return render(request, 'a_posts/post_delete.html', {'post': post})
 
 # View to handle post editing
+@login_required
 def post_eidt_view(request, pk):
     post = get_object_or_404(Post, id=pk)
     form = PostEditForm(instance=post)
@@ -57,13 +61,13 @@ def post_eidt_view(request, pk):
         form = PostEditForm(request.POST, instance=post)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Post updated successfully.')  # Optional: Add a success message
-            return redirect('home') # Redirect to home page after successful post edit
+            messages.success(request, 'Post updated successfully.')
+            return redirect('home')
     context = {
         'form': form,
         'post': post,
     }
-    return render(request, 'a_posts/post_edit.html', context)  # Ensure you have a 'post_edit.html' template in the correct directory
+    return render(request, 'a_posts/post_edit.html', context)
     
 # View to display a single post
 def post_page_view(request, pk):
@@ -186,7 +190,7 @@ def geocode_view(request):
 
 def profile_view(request, username):
     user = get_object_or_404(User, username=username)
-    profile = user.profile
+    profile, created = UserProfile.objects.get_or_create(user=user)
     
     tab = request.GET.get('tab', 'giving')
     

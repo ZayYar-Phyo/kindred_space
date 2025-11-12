@@ -132,3 +132,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.repl.co',
 ]
 X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+# Authentication settings
+LOGIN_URL = '/admin/login/'
+LOGIN_REDIRECT_URL = '/'
