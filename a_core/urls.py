@@ -23,12 +23,13 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('', home_view, name='home'),# Add this line
+    path('', home_view, name='home'),
     path('posts/create/', post_create_view, name='post-create'),
     path('posts/delete/<pk>', post_delete_view, name='post-delete'), 
     path('posts/edit/<pk>', post_eidt_view, name='post-edit'),
     path('posts/<pk>', post_page_view, name='post'),
     path('api/geocode', geocode_view, name='geocode'),
+    path('users/<str:username>/', profile_view, name='profile'),
 ]
 
 if settings.DEBUG:

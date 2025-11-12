@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.models import User
 from .models import *
 from .forms import *
 from bs4 import BeautifulSoup
@@ -181,3 +182,28 @@ def geocode_view(request):
             'success': False,
             'error': f'予期しないエラーが発生しました: {str(e)}'
         }, status=500)
+
+
+def profile_view(request, username):
+    user = get_object_or_404(User, username=username)
+    profile = user.profile
+    
+    tab = request.GET.get('tab', 'giving')
+    
+    if tab == 'giving':
+        posts = user.posts.filter(post_type='GIVE').order_by('-created_at')
+    elif tab == 'requesting':
+        posts = user.posts.filter(post_type='REQUEST').order_by('-created_at')
+    elif tab == 'history':
+        posts = user.posts.all().order_by('-created_at')
+    else:
+        posts = user.posts.filter(post_type='GIVE').order_by('-created_at')
+    
+    context = {
+        'profile_user': user,
+        'profile': profile,
+        'posts': posts,
+        'current_tab': tab,
+    }
+    
+    return render(request, 'a_posts/profile.html', context)
