@@ -4,31 +4,45 @@
 
 <div class="card !p-0 mb-4">
     <!-- Profile Header -->
-    <div class="p-6 pb-4">
-        <div class="flex items-start gap-4 mb-4">
+    <div class="p-8 pb-6">
+        <div class="flex items-start gap-6 mb-6">
             <!-- Profile Picture -->
             <div class="flex-shrink-0">
                 {% if profile.profile_picture %}
-                <img class="w-20 h-20 object-cover rounded-full border-2 border-gray-200" src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}">
+                <img class="w-[120px] h-[120px] object-cover rounded-full border-4 border-gray-200 shadow-lg" src="{{ profile.profile_picture.url }}" alt="{{ profile_user.username }}">
                 {% else %}
-                <img class="w-20 h-20 object-cover rounded-full border-2 border-gray-200" src="{{ profile.default_avatar_url }}" alt="{{ profile_user.username }}">
+                <img class="w-[120px] h-[120px] object-cover rounded-full border-4 border-gray-200 shadow-lg" src="{{ profile.default_avatar_url }}" alt="{{ profile_user.username }}">
                 {% endif %}
             </div>
 
             <!-- User Info -->
             <div class="flex-1">
-                <div class="flex items-center gap-2 mb-2">
-                    <h1 class="text-2xl font-bold">{{ profile.display_name }}</h1>
-                    {% if profile.is_verified %}
-                    <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-xs font-semibold px-2 py-1 rounded-full">
-                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-3xl font-bold">{{ profile.display_name }}</h1>
+                        {% if profile.is_verified %}
+                        <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-800 text-sm font-semibold px-3 py-1 rounded-full">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            本人確認済
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Edit Profile Button (only visible to profile owner) -->
+                    {% if user.is_authenticated and user == profile_user %}
+                    <a href="#" class="inline-flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-lg transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                         </svg>
-                        認証済み
-                    </span>
+                        プロフィールを編集
+                    </a>
                     {% endif %}
                 </div>
-                <p class="text-gray-600 text-sm mb-1">@{{ profile_user.username }}</p>
+                
+                <p class="text-gray-600 text-base mb-2">@{{ profile_user.username }}</p>
+                
                 {% if profile.location_display %}
                 <p class="text-gray-500 text-sm flex items-center gap-1 mb-3">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,49 +52,55 @@
                     {{ profile.location_display }}
                 </p>
                 {% endif %}
+                
                 {% if profile.bio %}
-                <p class="text-gray-700 mb-3">{{ profile.bio }}</p>
+                <p class="text-gray-700 text-base leading-relaxed">{{ profile.bio }}</p>
+                {% else %}
+                <p class="text-gray-400 italic text-sm">自己紹介文はまだ設定されていません</p>
                 {% endif %}
             </div>
         </div>
 
         <!-- Trust Metrics Bar -->
-        <div class="bg-gray-50 rounded-lg p-4 mb-4">
+        <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-5 mb-6 border border-yellow-100">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <!-- Reputation Score -->
-                <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold text-gray-600">評価:</span>
-                    <div class="flex items-center gap-1">
-                        <span class="text-xl font-bold text-yellow-600">{{ profile.reputation_score }}</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-base font-bold text-gray-700">評価スコア:</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-3xl font-extrabold text-yellow-600">{{ profile.reputation_score }}</span>
                         <div class="flex">
                             {% for i in "12345" %}
                                 {% if forloop.counter <= profile.reputation_stars %}
-                                <svg class="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                                <svg class="w-6 h-6 text-yellow-400 fill-current" viewBox="0 0 20 20">
                                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
                                 </svg>
                                 {% else %}
-                                <svg class="w-5 h-5 text-gray-300 fill-current" viewBox="0 0 20 20">
+                                <svg class="w-6 h-6 text-gray-300 fill-current" viewBox="0 0 20 20">
                                     <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
                                 </svg>
                                 {% endif %}
                             {% endfor %}
                         </div>
-                        <span class="text-sm text-gray-500">({{ review_count }}件のレビュー)</span>
+                        <span class="text-sm text-gray-600 font-medium">({{ review_count }}件のレビュー)</span>
                     </div>
                 </div>
 
-                <!-- Community Badges Placeholder -->
+                <!-- Community Badges -->
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-semibold text-gray-600">バッジ:</span>
-                    <div class="flex gap-1">
+                    <span class="text-base font-bold text-gray-700">バッジ:</span>
+                    <div class="flex gap-2">
                         {% if profile.total_contributions >= 100 %}
-                        <span class="text-2xl" title="100回以上の貢献">🏆</span>
+                        <span class="text-3xl" title="100回以上の貢献">🏆</span>
                         {% endif %}
                         {% if profile.success_rate >= 95 %}
-                        <span class="text-2xl" title="95%以上の成功率">⭐</span>
+                        <span class="text-3xl" title="95%以上の成功率">⭐</span>
                         {% endif %}
                         {% if profile.is_verified %}
-                        <span class="text-2xl" title="認証済みユーザー">✅</span>
+                        <span class="text-3xl" title="認証済みユーザー">✅</span>
+                        {% endif %}
+                        {% if not profile.total_contributions and not profile.is_verified %}
+                        <span class="text-gray-400 text-sm italic">まだバッジがありません</span>
                         {% endif %}
                     </div>
                 </div>
@@ -88,18 +108,18 @@
         </div>
 
         <!-- Contribution Summary Stats -->
-        <div class="grid grid-cols-3 gap-4 text-center">
-            <div class="bg-white p-3 rounded-lg border border-gray-200">
-                <div class="text-2xl font-bold text-green-600">{{ profile.total_contributions }}</div>
-                <div class="text-xs text-gray-600 mt-1">貢献回数</div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+            <div class="bg-white p-5 rounded-xl border-2 border-green-100 hover:border-green-300 transition">
+                <div class="text-4xl font-extrabold text-green-600 mb-2">{{ profile.total_contributions }}</div>
+                <div class="text-sm text-gray-600 font-semibold">貢献回数</div>
             </div>
-            <div class="bg-white p-3 rounded-lg border border-gray-200">
-                <div class="text-2xl font-bold text-blue-600">{{ profile.success_rate|floatformat:0 }}%</div>
-                <div class="text-xs text-gray-600 mt-1">成功率</div>
+            <div class="bg-white p-5 rounded-xl border-2 border-blue-100 hover:border-blue-300 transition">
+                <div class="text-4xl font-extrabold text-blue-600 mb-2">{{ profile.success_rate|floatformat:0 }}%</div>
+                <div class="text-sm text-gray-600 font-semibold">成功率</div>
             </div>
-            <div class="bg-white p-3 rounded-lg border border-gray-200">
-                <div class="text-2xl font-bold text-purple-600">{{ profile.followers_count }}</div>
-                <div class="text-xs text-gray-600 mt-1">フォロワー</div>
+            <div class="bg-white p-5 rounded-xl border-2 border-purple-100 hover:border-purple-300 transition">
+                <div class="text-4xl font-extrabold text-purple-600 mb-2">{{ profile.followers_count }}</div>
+                <div class="text-sm text-gray-600 font-semibold">フォロワー</div>
             </div>
         </div>
     </div>
