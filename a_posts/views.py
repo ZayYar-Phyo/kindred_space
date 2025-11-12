@@ -15,7 +15,7 @@ from django.http import JsonResponse
 
 def home_view(request):
     query = request.GET.get('q', '').strip()
-    posts = Post.objects.all()  # Fetch posts ordered by creation date
+    posts = Post.objects.select_related('user').all()
     if query:
         posts = posts.filter(
             Q(title__icontains=query)
@@ -23,7 +23,12 @@ def home_view(request):
             | Q(artist__icontains=query)
             | Q(tags__name__icontains=query)
         ).distinct()
-    return render(request, 'a_posts/home.html', {'posts' : posts, 'q': query})  # Ensure you have a 'home.html' template in the correct directory
+    
+    for post in posts:
+        if post.user:
+            UserProfile.objects.get_or_create(user=post.user)
+    
+    return render(request, 'a_posts/home.html', {'posts' : posts, 'q': query})
 
 
 # View to handle post creation
@@ -74,8 +79,10 @@ def post_eidt_view(request, pk):
     
 # View to display a single post
 def post_page_view(request, pk):
-    post = get_object_or_404(Post, id=pk)   
-    return render(request, 'a_posts/post_page.html', {'post': post})  # Ensure you have a 'post_page.html' template in the correct directory
+    post = get_object_or_404(Post.objects.select_related('user'), id=pk)
+    if post.user:
+        UserProfile.objects.get_or_create(user=post.user)
+    return render(request, 'a_posts/post_page.html', {'post': post})
 
 
 # Geocoding API endpoint for postal code lookup
@@ -230,6 +237,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
+                UserProfile.objects.get_or_create(user=user)
                 messages.success(request, f'{username}さん、おかえりなさい！')
                 
                 if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
