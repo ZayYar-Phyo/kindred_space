@@ -213,8 +213,9 @@ def profile_view(request, username):
     else:
         posts = user.posts.filter(post_type='GIVE').order_by('-created_at')
     
-    reviews = Review.objects.filter(reviewee=user).select_related('reviewer').order_by('-created_at')[:10]
-    review_count = reviews.count()
+    all_reviews = Review.objects.filter(reviewee=user).select_related('reviewer').order_by('-created_at')
+    review_count = all_reviews.count()
+    reviews = all_reviews[:10]
     
     can_review = request.user.is_authenticated and request.user != user
     has_reviewed = False
