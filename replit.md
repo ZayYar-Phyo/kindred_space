@@ -117,6 +117,20 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-13**: Hero Carousel Implementation
+  - Integrated Swiper.js v11 library for professional image carousel
+  - Created responsive 2-slide hero carousel at top of landing page
+  - Implemented Japanese text overlay with headline "思いやりの輪を、必要なところへ" and subtitle
+  - Added autoplay (5 second intervals) with manual navigation controls
+  - Included clickable pagination dots and prev/next navigation arrows
+  - Gradient overlay (black to transparent) for optimal text readability
+  - CTA button "始める" linking to post creation page
+  - Responsive design: 400px height on mobile, 500px on desktop
+  - Created media/carousel/ directory with README instructions for image replacement
+  - Positioned above posts grid section with "最新の投稿" header
+  - Stock placeholder images included (easily replaceable via README instructions)
+  - Architect-approved and production-ready
+
 - **2025-11-12**: User Follow System
   - Created Follow model with follower/following relationships and unique constraint
   - Implemented toggle follow/unfollow view with authentication and self-follow prevention
