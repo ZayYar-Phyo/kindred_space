@@ -1,4 +1,4 @@
-<hero class="relative text-white text-center overflow-hidden">
+<hero class="relative text-white text-center overflow-hidden h-[50vh] md:h-[70vh]">
     <!-- Swiper Background Carousel -->
     <div class="swiper heroBackgroundSwiper absolute inset-0 w-full h-full">
         <div class="swiper-wrapper">
@@ -10,13 +10,13 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Dark Overlay -->
     <div class="absolute inset-0 bg-gray-800 bg-opacity-40 z-10 pointer-events-none"></div>
-    
+
     <!-- Pagination Dots (above overlay) -->
     <div class="swiper-pagination absolute bottom-6 left-0 right-0 z-[15]"></div>
-    
+
     <!-- Text Content (Static Overlay) -->
     <div class="relative z-20 py-24 px-10">
         <h1 class="font1 text-6xl title-fadein">思いやりの輪を、必要なところへ</h1>
@@ -26,22 +26,22 @@
 </hero>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const heroSwiper = new Swiper('.heroBackgroundSwiper', {
-        loop: true,
-        autoplay: {
-            delay: 5000,
-            disableOnInteraction: false,
-        },
-        pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-        },
-        speed: 1000,
-        effect: 'fade',
-        fadeEffect: {
-            crossFade: true
-        },
+    document.addEventListener('DOMContentLoaded', function () {
+        const heroSwiper = new Swiper('.heroBackgroundSwiper', {
+            loop: true,
+            autoplay: {
+                delay: 5000,
+                disableOnInteraction: false,
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+            },
+            speed: 1000,
+            effect: 'fade',
+            fadeEffect: {
+                crossFade: true
+            },
+        });
     });
-});
 </script>
