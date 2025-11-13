@@ -9,12 +9,11 @@
                 <img src="/media/hero/hero2.avif" alt="Community Connection" class="w-full h-full object-cover">
             </div>
         </div>
-        <!-- Pagination Dots (inside Swiper for click functionality) -->
+        <!-- Dark Overlay (inside Swiper, below pagination) -->
+        <div class="absolute inset-0 bg-gray-800 bg-opacity-40 z-10 pointer-events-none"></div>
+        <!-- Pagination Dots (last in DOM = highest stacking, clickable) -->
         <div class="swiper-pagination"></div>
     </div>
-
-    <!-- Dark Overlay -->
-    <div class="absolute inset-0 bg-gray-800 bg-opacity-40 z-10 pointer-events-none"></div>
 
     <!-- Text Content (Static Overlay) -->
     <div class="relative z-20 py-24 px-10">
