@@ -117,6 +117,17 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-13**: Hero Background Carousel
+  - Integrated Swiper.js for rotating hero section backgrounds
+  - Converted static hero image to dynamic carousel with 2 images
+  - Implemented smooth fade transitions between backgrounds (5 second intervals)
+  - Added clickable pagination dots for manual navigation
+  - Maintained static text overlay ("思いやりの輪を、必要なところへ") above rotating backgrounds
+  - Proper z-index layering: Swiper (0) → Dark overlay (10) → Pagination (15) → Text (20)
+  - Autoplay enabled with loop for continuous rotation
+  - Hero images stored in `/media/hero/` directory
+  - Architect-approved and production-ready
+
 - **2025-11-12**: User Follow System
   - Created Follow model with follower/following relationships and unique constraint
   - Implemented toggle follow/unfollow view with authentication and self-follow prevention
