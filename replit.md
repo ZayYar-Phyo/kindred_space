@@ -117,15 +117,19 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
-- **2025-11-13**: Hero Background Carousel
-  - Integrated Swiper.js for rotating hero section backgrounds
-  - Converted static hero image to dynamic carousel with 2 images
+- **2025-11-13**: Hero Background Carousel with Clickable Pagination
+  - Integrated Swiper.js v11 for rotating hero section backgrounds
+  - Converted static hero image to dynamic carousel with 2 images (seedling and community photos)
   - Implemented smooth fade transitions between backgrounds (5 second intervals)
-  - Added clickable pagination dots for manual navigation
+  - Added clickable pagination dots for manual slide navigation
+  - Pagination positioned inside Swiper container (required for click binding) with absolute positioning
+  - Custom CSS ensures pagination appears above dark overlay (z-index: 15) while remaining clickable
+  - Dark overlay uses `pointer-events-none` to allow clicks to pass through to pagination
   - Maintained static text overlay ("思いやりの輪を、必要なところへ") above rotating backgrounds
-  - Proper z-index layering: Swiper (0) → Dark overlay (10) → Pagination (15) → Text (20)
+  - Proper z-index layering: Swiper (0) → Dark overlay (10, non-blocking) → Pagination (15) → Text (20)
   - Autoplay enabled with loop for continuous rotation
-  - Hero images stored in `/media/hero/` directory
+  - Hero images stored in `/media/hero/` directory (hero1.jpg, hero2.avif)
+  - Responsive height: 50vh mobile, 70vh desktop
   - Architect-approved and production-ready
 
 - **2025-11-12**: User Follow System
