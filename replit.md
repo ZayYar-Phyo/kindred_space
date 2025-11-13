@@ -125,8 +125,9 @@ The platform uses a custom authentication system with Japanese-language UI:
   - Pagination positioned inside Swiper container (required for click binding) with absolute positioning
   - Custom CSS ensures pagination appears above dark overlay (z-index: 15) while remaining clickable
   - Dark overlay uses `pointer-events-none` to allow clicks to pass through to pagination
+  - Text overlay uses `pointer-events-none` to allow clicks to pass through to pagination dots underneath
   - Maintained static text overlay ("思いやりの輪を、必要なところへ") above rotating backgrounds
-  - Proper z-index layering: Swiper (0) → Dark overlay (10, non-blocking) → Pagination (15) → Text (20)
+  - Proper z-index layering: Swiper (0) → Dark overlay (10, non-blocking) → Pagination (15) → Text (20, non-blocking)
   - Autoplay enabled with loop for continuous rotation
   - Hero images stored in `/media/hero/` directory (hero1.jpg, hero2.avif)
   - Responsive height: 50vh mobile, 70vh desktop
