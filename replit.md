@@ -117,6 +117,18 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-14**: Eco-Friendly Green Color Scheme (#4CAF50)
+  - Implemented unified eco-green (#4CAF50) as the primary brand color across the entire platform
+  - Created centralized CSS color system using custom properties (--primary, --primary-hover, --primary-dark, --primary-soft)
+  - Added reusable Tailwind utility classes (bg-primary, text-primary, border-primary, ring-primary, etc.)
+  - Replaced all blue/indigo/purple colors in navigation bar, buttons, form focus states, tabs, and badges
+  - Updated all icon assets and avatar fallbacks from indigo (#4F46E5) to eco-green (#4CAF50)
+  - Unified GIVE/REQUEST post type badges with eco-green theme (bg-primary-soft text-primary-dark)
+  - Updated GIVE/REQUEST toggle buttons in post creation form to use eco-green palette
+  - Login/signup hero icons, profile review avatars, and post author avatars now use eco-green backgrounds
+  - Maintains red follow button as intentional CTA differentiation (UX best practice)
+  - Architect-approved and production-ready sustainable design
+
 - **2025-11-13**: Hero Background Carousel with Clickable Pagination
   - Integrated Swiper.js v11 for rotating hero section backgrounds
   - Converted static hero image to dynamic carousel with 2 images (seedling and community photos)
