@@ -117,6 +117,16 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-14**: Auto-Hiding Header Scroll Behavior
+  - Implemented smart scroll detection using Alpine.js to auto-hide header when scrolling down
+  - Header smoothly slides up when user scrolls down past 100px threshold
+  - Header instantly reappears when scrolling up for easy access to navigation
+  - Header always visible when at top of page (no hiding at scroll position 0)
+  - Smooth 300ms transition with ease-in-out animation for polished UX
+  - Gives users more screen space for content while keeping navigation accessible
+  - No performance impact - lightweight scroll listener with minimal logic
+  - Architect-approved and production-ready
+
 - **2025-11-14**: Off-White Header Redesign
   - Redesigned header from vibrant eco-green to clean off-white (bg-gray-50) to eliminate visual disconnect with hero section
   - Updated text color from white to dark gray (text-gray-800) for proper contrast on light background
