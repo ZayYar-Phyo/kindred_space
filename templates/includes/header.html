@@ -1,5 +1,5 @@
 <header x-data="{ mobilenavOpen: false }"
-    class="md:flex items-center justify-between [&>*]:px-8 bg-gray-800 h-20 text-white sticky top-0 z-40">
+    class="md:flex items-center justify-between [&>*]:px-8 bg-primary h-20 text-white sticky top-0 z-40">
     <div class="flex items-center justify-between h-20">
         <logo>
             <a class="flex items-center gap-1" href="/">
@@ -9,7 +9,7 @@
         </logo>
         <mobileicon class="md:hidden">
             <a @click="mobilenavOpen = !mobilenavOpen"
-                class="h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-gray-700 rounded-lg">
+                class="h-12 w-12 flex items-center justify-center cursor-pointer hover:bg-primary-dark rounded-lg">
                 <img x-show="!mobilenavOpen" class="w-6 h-6 select-none"
                     src="https://img.icons8.com/small/64/ffffff/menu.png" />
                 <img x-show="mobilenavOpen" x-cloak class="w-6 h-6 select-none"
@@ -32,7 +32,7 @@
     </div>
 
     <nav x-show="mobilenavOpen" x-cloak
-        class="md:!block bg-gray-800 h-screen w-screen md:h-auto md:w-auto -mt-20 md:mt-0 absolute md:relative z-[-1]"
+        class="md:!block bg-primary h-screen w-screen md:h-auto md:w-auto -mt-20 md:mt-0 absolute md:relative z-[-1]"
         x-transition:enter="duration-300 ease-out" x-transition:enter-start="opacity-0 -translate-y-96"
         x-transition:enter-end="opacity-100 translate-y-0">
         <ul
