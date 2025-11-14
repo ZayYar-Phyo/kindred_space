@@ -18,10 +18,41 @@
             display: none !important; 
         }
         :root {
-            --primary: rgb(88, 40, 244);
-            --primary-hover: rgb(69, 29, 200);
+            --primary: #4CAF50;
+            --primary-hover: #45a049;
+            --primary-dark: #388E3C;
+            --primary-light: #81C784;
+            --primary-soft: #C8E6C9;
+            --primary-transparent: rgba(76, 175, 80, 0.1);
             --black: #1f2937;
             --font1: 'Lobster', sans-serif;
+        }
+        
+        @layer utilities {
+            .bg-primary { background-color: var(--primary); }
+            .bg-primary-hover { background-color: var(--primary-hover); }
+            .bg-primary-dark { background-color: var(--primary-dark); }
+            .bg-primary-light { background-color: var(--primary-light); }
+            .bg-primary-soft { background-color: var(--primary-soft); }
+            .bg-primary-transparent { background-color: var(--primary-transparent); }
+            
+            .text-primary { color: var(--primary); }
+            .text-primary-dark { color: var(--primary-dark); }
+            .text-primary-light { color: var(--primary-light); }
+            
+            .border-primary { border-color: var(--primary); }
+            .border-primary-light { border-color: var(--primary-light); }
+            .border-primary-soft { border-color: var(--primary-soft); }
+            
+            .ring-primary { --tw-ring-color: var(--primary); }
+            
+            .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
+            .hover\:bg-primary-dark:hover { background-color: var(--primary-dark); }
+            .hover\:text-primary-dark:hover { color: var(--primary-dark); }
+            .hover\:border-primary:hover { border-color: var(--primary); }
+            
+            .focus\:ring-primary:focus { --tw-ring-color: var(--primary); }
+            .focus\:border-primary:focus { border-color: var(--primary); }
         }
         h1 {
             @apply text-4xl font-bold mb-4
@@ -90,7 +121,7 @@
             @apply flex items-center p-2;
         }
         .highlight {
-            @apply !bg-indigo-100;
+            background-color: var(--primary-soft) !important;
         }
         .titleBlip {
             animation: 1s fadeIn;
