@@ -117,12 +117,21 @@ The platform uses a custom authentication system with Japanese-language UI:
 - You can now login at `/login/` instead of Django admin!
 
 ## Recent Changes
+- **2025-11-14**: Off-White Header Redesign
+  - Redesigned header from vibrant eco-green to clean off-white (bg-gray-50) to eliminate visual disconnect with hero section
+  - Updated text color from white to dark gray (text-gray-800) for proper contrast on light background
+  - Changed logo and navigation icons from white to black for visibility
+  - Updated mobile navigation background and hover states to match off-white theme (hover:bg-gray-200)
+  - Added subtle shadow (shadow-sm) for depth and separation
+  - Eco-green (#4CAF50) now serves as accent color throughout site (buttons, badges, forms) rather than primary surface color
+  - Creates cleaner, more professional look that doesn't compete with hero imagery
+  - Architect-approved and production-ready
+
 - **2025-11-14**: Eco-Friendly Green Color Scheme (#4CAF50)
   - Implemented unified eco-green (#4CAF50) as the primary brand color across the entire platform
   - Created centralized CSS color system using custom properties (--primary, --primary-hover, --primary-dark, --primary-soft)
   - Added reusable Tailwind utility classes (bg-primary, text-primary, border-primary, ring-primary, etc.)
   - Replaced all gray/blue/indigo/purple colors with eco-green across entire UI
-  - **Header navigation bar**: Replaced bg-gray-800 with bg-primary for desktop and mobile navigation
   - **Buttons & forms**: Updated all primary buttons, form focus states, tabs, and badges
   - **Icons & avatars**: Changed all icon assets and avatar fallbacks from indigo (#4F46E5) to eco-green (#4CAF50)
   - **Post badges**: Unified GIVE/REQUEST post type badges with eco-green theme (bg-primary-soft text-primary-dark)
