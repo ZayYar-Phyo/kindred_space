@@ -242,7 +242,7 @@
                     {% load profile_tags %}
                     {% with reviewer_profile=review.reviewer|get_profile %}
                     <img class="w-10 h-10 rounded-full object-cover" 
-                         src="{% if reviewer_profile and reviewer_profile.profile_picture %}{{ reviewer_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ review.reviewer.username }}&background=4F46E5&color=fff{% endif %}"
+                         src="{% if reviewer_profile and reviewer_profile.profile_picture %}{{ reviewer_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ review.reviewer.username }}&background=4CAF50&color=fff{% endif %}"
                          alt="{{ review.reviewer.username }}">
                     {% endwith %}
                 </a>

@@ -4,7 +4,7 @@
                 {% if post.post_type %}
                 <div class="text-sm">
                     {% if post.post_type == 'GIVE' %}
-                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold">提供</span>
+                    <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">提供</span>
                     {% else %}
                     <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">依頼</span>
                     {% endif %}
@@ -25,7 +25,7 @@
                 {% if post.user %}
                 {% with profile=post.user|get_profile %}
                 <a class="flex items-center gap-1 mb-4" href="{% url 'profile' post.user.username %}">
-                    <img class="w-8 h-8 object-cover rounded-full" src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ post.user.username }}&background=4F46E5&color=fff{% endif %}">
+                    <img class="w-8 h-8 object-cover rounded-full" src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ post.user.username }}&background=4CAF50&color=fff{% endif %}">
                     <span class="font-bold hover:underline">{{ post.user.username }}</span>
                     <span class="text-sm text-gray-400">@{{ post.user.username }}</span>
                 </a>

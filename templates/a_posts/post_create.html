@@ -15,7 +15,7 @@
         <button 
             type="button"
             @click="postType = 'GIVE'; document.getElementById('id_post_type').value = 'GIVE'; document.getElementById('id_reason').placeholder = 'なぜこれを提供しますか？';"
-            :class="postType === 'GIVE' ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
+            :class="postType === 'GIVE' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
             {% comment %} <span class="text-4xl mb-2">🎁</span> {% endcomment %}

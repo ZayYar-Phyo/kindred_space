@@ -44,7 +44,7 @@
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false"
                     class="cursor-pointer select-none">
                     <img class="h-8 w-8 rounded-full object-cover"
-                        src="{% if user_profile and user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ user.username }}&background=4F46E5&color=fff{% endif %}" />
+                        src="{% if user_profile and user_profile.profile_picture %}{{ user_profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ user.username }}&background=4CAF50&color=fff{% endif %}" />
                     {{ user.username }}
                     <img x-bind:class="dropdownOpen && 'rotate-180 duration-300'" class="w-4"
                         src="https://img.icons8.com/small/32/777777/expand-arrow.png" />
