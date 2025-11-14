@@ -24,7 +24,7 @@
         <button 
             type="button"
             @click="postType = 'REQUEST'; document.getElementById('id_post_type').value = 'REQUEST'; document.getElementById('id_reason').placeholder = 'このアイテム/スキルがなぜ必要ですか？';"
-            :class="postType === 'REQUEST' ? 'bg-blue-500 hover:bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
+            :class="postType === 'REQUEST' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
             {% comment %} <span class="text-4xl mb-2">🙏</span> {% endcomment %}
