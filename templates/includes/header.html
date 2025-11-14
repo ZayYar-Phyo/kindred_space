@@ -1,5 +1,25 @@
-<header x-data="{ mobilenavOpen: false }"
-    class="md:flex items-center justify-between [&>*]:px-8 bg-gray-50 h-20 text-gray-800 sticky top-0 z-40 shadow-sm">
+<header x-data="{ 
+        mobilenavOpen: false,
+        scrollingDown: false,
+        lastScroll: 0
+    }"
+    x-init="
+        window.addEventListener('scroll', () => {
+            let currentScroll = window.pageYOffset;
+            if (currentScroll <= 0) {
+                scrollingDown = false;
+                return;
+            }
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                scrollingDown = true;
+            } else if (currentScroll < lastScroll) {
+                scrollingDown = false;
+            }
+            lastScroll = currentScroll;
+        })
+    "
+    :class="scrollingDown ? '-translate-y-full' : 'translate-y-0'"
+    class="md:flex items-center justify-between [&>*]:px-8 bg-gray-50 h-20 text-gray-800 sticky top-0 z-40 shadow-sm transition-transform duration-300 ease-in-out">
     <div class="flex items-center justify-between h-20">
         <logo>
             <a class="flex items-center gap-1" href="/">
