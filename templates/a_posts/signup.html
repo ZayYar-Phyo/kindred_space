@@ -36,7 +36,7 @@
                 <div>
                     <label for="id_username" class="block text-sm font-medium text-gray-700">ユーザー名</label>
                     <input id="id_username" name="username" type="text" required 
-                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" 
                            placeholder="ユーザー名を入力" value="{{ form.username.value|default:'' }}">
                     {% if form.username.errors %}
                         <p class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</p>
@@ -47,7 +47,7 @@
                 <div>
                     <label for="id_password1" class="block text-sm font-medium text-gray-700">パスワード</label>
                     <input id="id_password1" name="password1" type="password" required 
-                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" 
                            placeholder="パスワードを入力">
                     {% if form.password1.errors %}
                         <p class="text-red-600 text-sm mt-1">{{ form.password1.errors.0 }}</p>
@@ -58,7 +58,7 @@
                 <div>
                     <label for="id_password2" class="block text-sm font-medium text-gray-700">パスワード（確認）</label>
                     <input id="id_password2" name="password2" type="password" required 
-                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" 
+                           class="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" 
                            placeholder="パスワードを再入力">
                     {% if form.password2.errors %}
                         <p class="text-red-600 text-sm mt-1">{{ form.password2.errors.0 }}</p>
@@ -68,7 +68,7 @@
 
             <div>
                 <button type="submit" 
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary">
                     アカウント作成
                 </button>
             </div>
@@ -76,7 +76,7 @@
             <div class="text-center">
                 <p class="text-sm text-gray-600">
                     既にアカウントをお持ちですか？ 
-                    <a href="{% url 'login' %}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                    <a href="{% url 'login' %}" class="font-medium text-primary hover:text-primary-dark">
                         ログイン
                     </a>
                 </p>
