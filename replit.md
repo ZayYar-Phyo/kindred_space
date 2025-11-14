@@ -121,10 +121,12 @@ The platform uses a custom authentication system with Japanese-language UI:
   - Implemented unified eco-green (#4CAF50) as the primary brand color across the entire platform
   - Created centralized CSS color system using custom properties (--primary, --primary-hover, --primary-dark, --primary-soft)
   - Added reusable Tailwind utility classes (bg-primary, text-primary, border-primary, ring-primary, etc.)
-  - Replaced all blue/indigo/purple colors in navigation bar, buttons, form focus states, tabs, and badges
-  - Updated all icon assets and avatar fallbacks from indigo (#4F46E5) to eco-green (#4CAF50)
-  - Unified GIVE/REQUEST post type badges with eco-green theme (bg-primary-soft text-primary-dark)
-  - Updated GIVE/REQUEST toggle buttons in post creation form to use eco-green palette
+  - Replaced all gray/blue/indigo/purple colors with eco-green across entire UI
+  - **Header navigation bar**: Replaced bg-gray-800 with bg-primary for desktop and mobile navigation
+  - **Buttons & forms**: Updated all primary buttons, form focus states, tabs, and badges
+  - **Icons & avatars**: Changed all icon assets and avatar fallbacks from indigo (#4F46E5) to eco-green (#4CAF50)
+  - **Post badges**: Unified GIVE/REQUEST post type badges with eco-green theme (bg-primary-soft text-primary-dark)
+  - **Toggle buttons**: Updated GIVE/REQUEST toggle buttons in post creation form to use eco-green palette
   - Login/signup hero icons, profile review avatars, and post author avatars now use eco-green backgrounds
   - Maintains red follow button as intentional CTA differentiation (UX best practice)
   - Architect-approved and production-ready sustainable design
