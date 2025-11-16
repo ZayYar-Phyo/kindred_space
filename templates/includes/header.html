@@ -43,10 +43,13 @@
         <form method="GET" action="{% url 'home' %}" class="w-full">
             <div class="relative">
                 <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search posts..."
-                    class="w-full px-4 py-2 pl-10 pr-4 text-gray-800 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+                    class="w-full px-4 py-2 pl-10 pr-20 text-gray-800 bg-white rounded-lg focus:outline-none focus:ring-2 focus:ring-primary shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]" />
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3">
                     <img class="w-5 h-5 text-gray-400" src="https://img.icons8.com/small/64/000000/search.png" />
                 </div>
+                <button type="submit" class="absolute inset-y-0 right-0 px-4 bg-primary hover:bg-primary-dark text-white font-medium rounded-r-lg transition-colors duration-200">
+                    検索
+                </button>
             </div>
         </form>
     </div>
