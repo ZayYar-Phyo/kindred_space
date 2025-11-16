@@ -9,7 +9,7 @@ I prefer iterative development with clear, concise explanations for each step. P
 ## System Architecture
 
 ### UI/UX Decisions
-The platform features an eco-friendly green color scheme (#4CAF50) as the primary brand color, used for buttons, forms, and accents, while the header is a clean off-white (bg-gray-50) for a professional look. It includes responsive design for all components, an auto-hiding header on scroll, and dynamic hero background carousels with pagination using Swiper.js. User profiles are professionally redesigned with enlarged photos, prominent names, enhanced statistics, and gradient trust metric bars.
+The platform features an eco-friendly green color scheme (#4CAF50) as the primary brand color, used for buttons, forms, and accents, while the header is a clean off-white (bg-gray-50) for a professional look. Navigation links ("Home" and "Create Post") use the eco-green theme color with hover effects for visual consistency. The search bar includes an inset shadow input field with a dedicated eco-green "検索" (Search) button that is perfectly aligned vertically using flexbox centering. It includes responsive design for all components, an auto-hiding header on scroll, and dynamic hero background carousels with pagination using Swiper.js. User profiles are professionally redesigned with enlarged photos, prominent names, enhanced statistics, and gradient trust metric bars.
 
 ### Technical Implementations
 - **Backend**: Django 5.2.6 (Python 3.12)
