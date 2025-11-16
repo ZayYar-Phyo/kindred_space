@@ -61,11 +61,11 @@
         <ul
             class="flex items-center navitems flex-col md:flex-row gap-6 md:gap-6 justify-center h-full -translate-y-10 md:translate-y-0">
             <li><a href="/"
-                    class="text-primary hover:bg-primary-dark text-white font-semibold transition-colors duration-200">Home</a>
+                    class="text-primary hover:bg-white-dark  font-semibold transition-colors duration-200">Home</a>
             </li>
             <li><a href="{%url 'post-create'%}"
-                    class="bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Create
-                    Post</a></li>
+                    class="bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">CreatePost</a>
+            </li>
             {% if user.is_authenticated %}
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false"
