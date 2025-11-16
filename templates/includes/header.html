@@ -2,8 +2,7 @@
         mobilenavOpen: false,
         scrollingDown: false,
         lastScroll: 0
-    }"
-    x-init="
+    }" x-init="
         window.addEventListener('scroll', () => {
             let currentScroll = window.pageYOffset;
             if (currentScroll <= 0) {
@@ -17,8 +16,7 @@
             }
             lastScroll = currentScroll;
         })
-    "
-    :class="scrollingDown ? '-translate-y-full' : 'translate-y-0'"
+    " :class="scrollingDown ? '-translate-y-full' : 'translate-y-0'"
     class="md:flex items-center justify-between [&>*]:px-8 bg-gray-50 h-20 text-gray-800 sticky top-0 z-40 shadow-sm transition-transform duration-300 ease-in-out">
     <div class="flex items-center justify-between h-20">
         <logo>
@@ -41,13 +39,15 @@
     <!-- Search Bar -->
     <div class="flex items-center flex-1 max-w-md mx-4">
         <form method="GET" action="{% url 'home' %}" class="w-full">
-            <div class="flex items-center bg-white rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus-within:ring-2 focus-within:ring-primary transition-all">
+            <div
+                class="flex items-center bg-white rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus-within:ring-2 focus-within:ring-primary transition-all">
                 <div class="flex items-center pl-3">
                     <img class="w-5 h-5 text-gray-400" src="https://img.icons8.com/small/64/000000/search.png" />
                 </div>
                 <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search posts..."
                     class="flex-1 px-4 py-2 text-gray-800 bg-transparent border-none focus:outline-none" />
-                <button type="submit" class="flex items-center justify-center px-4 md:px-6 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-r-lg transition-colors duration-200">
+                <button type="submit"
+                    class="flex items-center justify-center px-4 md:px-6 py-2 bg-primary hover:bg-primary-dark text-white font-semibold rounded-r-lg transition-colors duration-200">
                     検索
                 </button>
             </div>
@@ -60,8 +60,12 @@
         x-transition:enter-end="opacity-100 translate-y-0">
         <ul
             class="flex items-center navitems flex-col md:flex-row gap-6 md:gap-6 justify-center h-full -translate-y-10 md:translate-y-0">
-            <li><a href="/" class="text-primary hover:text-primary-dark font-semibold transition-colors duration-200">Home</a></li>
-            <li><a href="{%url 'post-create'%}" class="bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Create Post</a></li>
+            <li><a href="/"
+                    class="bg-primary hover:bg-primary-dark text-white font-semibold transition-colors duration-200">Home</a>
+            </li>
+            <li><a href="{%url 'post-create'%}"
+                    class="bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200">Create
+                    Post</a></li>
             {% if user.is_authenticated %}
             <li x-data="{ dropdownOpen: false }" class="relative">
                 <a @click="dropdownOpen = !dropdownOpen" @click.away="dropdownOpen = false"
