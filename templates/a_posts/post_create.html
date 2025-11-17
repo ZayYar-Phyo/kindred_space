@@ -51,7 +51,7 @@
         
         <!-- Location Fieldset -->
         <div class="mb-6">
-            <h3 class="mb-2">アイテム/サービスの場所</h3>
+            <h3 class="mb-2">アイテムの場所</h3>
             <div class="flex gap-2 mb-3">
                 <button type="button" class="button" @click="usingCurrent = true; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function(p){ const lat = p.coords.latitude.toFixed(6); const lng = p.coords.longitude.toFixed(6); const latInput = document.getElementById('id_latitude'); const lngInput = document.getElementById('id_longitude'); latInput.value = lat; lngInput.value = lng; if(window.__leafletMarker && window.__leafletMap){ window.__leafletMarker.setLatLng([lat, lng]); window.__leafletMap.setView([lat, lng], 15); setTimeout(function(){ window.__leafletMap.invalidateSize(); }, 50); } window.__reverseGeocode(lat, lng); }); }">現在地を使用</button>
                 <button type="button" class="button secondaryAction" @click="usingCurrent = false">手動で入力</button>
