@@ -256,10 +256,10 @@
         document.addEventListener('DOMContentLoaded', function() {
             const savedLat = sessionStorage.getItem('viewer_latitude');
             const savedLng = sessionStorage.getItem('viewer_longitude');
-            const savedRadius = sessionStorage.getItem('viewer_radius');
+            const savedRadius = sessionStorage.getItem('viewer_radius') || '10';  // Default to 10km
 
             // If we have saved location but URL doesn't have parameters, reload with them
-            if (savedLat && savedLng && savedRadius) {
+            if (savedLat && savedLng) {
                 const url = new URL(window.location.href);
                 const urlLat = url.searchParams.get('lat');
                 

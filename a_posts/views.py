@@ -50,14 +50,19 @@ def home_view(request):
     # Location-based filter
     viewer_lat = request.GET.get('lat')
     viewer_lng = request.GET.get('lng')
-    viewer_radius = request.GET.get('radius', 10)  # Default 10km
+    viewer_radius = request.GET.get('radius')
     location_filter_active = False
+    
+    # Harden radius parsing with default fallback
+    try:
+        viewer_radius = float(viewer_radius) if viewer_radius else 10.0
+    except (ValueError, TypeError):
+        viewer_radius = 10.0
     
     if viewer_lat and viewer_lng:
         try:
             viewer_lat = float(viewer_lat)
             viewer_lng = float(viewer_lng)
-            viewer_radius = float(viewer_radius)
             location_filter_active = True
             
             # Filter posts within radius
@@ -65,22 +70,26 @@ def home_view(request):
             for post in posts:
                 # Only filter posts that have valid coordinates (allow 0.0 as valid)
                 if post.latitude is not None and post.longitude is not None:
-                    # Convert Decimal to float for math operations
-                    post_lat = float(post.latitude)
-                    post_lng = float(post.longitude)
-                    
-                    distance = calculate_distance(
-                        viewer_lat, viewer_lng,
-                        post_lat, post_lng
-                    )
-                    if distance <= viewer_radius:
-                        post.distance = round(distance, 1)  # Add distance attribute
-                        nearby_posts.append(post)
+                    try:
+                        # Convert Decimal to float for math operations
+                        post_lat = float(post.latitude)
+                        post_lng = float(post.longitude)
+                        
+                        distance = calculate_distance(
+                            viewer_lat, viewer_lng,
+                            post_lat, post_lng
+                        )
+                        if distance <= viewer_radius:
+                            post.distance = round(distance, 1)  # Add distance attribute
+                            nearby_posts.append(post)
+                    except (ValueError, TypeError):
+                        # Skip this post if coordinates are malformed, continue with others
+                        continue
             
             # Sort by distance (closest first)
             posts = sorted(nearby_posts, key=lambda p: p.distance)
         except (ValueError, TypeError):
-            # If invalid coordinates, ignore location filter and use original posts
+            # If viewer coordinates are invalid, ignore location filter and use original posts
             location_filter_active = False
     
     # Add distance=None for posts without location filter

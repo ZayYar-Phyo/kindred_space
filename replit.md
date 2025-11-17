@@ -26,6 +26,14 @@ It includes responsive design for all components, an auto-hiding header on scrol
 - **Follow System**: `Follow` model implementing follower/following relationships with dynamic count calculation and a toggle follow/unfollow view.
 - **Posts**: Users can create GIVE (offering) or REQUEST (seeking) posts with image uploads, location data (Japanese postal codes), and a tag/category system. Posts display visual badges for type and link to user profiles.
 - **Search**: Functionality to search by title, body, artist, and tags.
+- **Location-Based Filtering**: Browser geolocation API integration with Haversine distance calculation to filter posts within a 10km radius. Features include:
+  - "現在地を選択" button in header with Alpine.js modal
+  - SessionStorage persistence for location preferences across sessions
+  - Dynamic UI indicator showing active filter with clear button (✕)
+  - Backend filtering using Haversine formula with Decimal-to-float conversion
+  - Resilient error handling (per-post validation, graceful fallbacks)
+  - Posts sorted by distance (closest first) with distance badges
+  - Supports valid 0.0 coordinates (equator/prime meridian)
 
 ### Feature Specifications
 - User authentication with Japanese UI.
