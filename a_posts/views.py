@@ -11,11 +11,34 @@ import requests
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from math import radians, cos, sin, asin, sqrt
+
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    """
+    Calculate the great circle distance in kilometers between two points 
+    on the earth (specified in decimal degrees) using the Haversine formula.
+    """
+    # Convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+
+    # Haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    
+    # Radius of earth in kilometers
+    r = 6371
+    
+    return c * r
 
 
 def home_view(request):
     query = request.GET.get('q', '').strip()
     posts = Post.objects.select_related('user').all()
+    
+    # Text search filter
     if query:
         posts = posts.filter(
             Q(title__icontains=query)
@@ -24,11 +47,54 @@ def home_view(request):
             | Q(tags__name__icontains=query)
         ).distinct()
     
-    for post in posts:
-        if post.user:
-            UserProfile.objects.get_or_create(user=post.user)
+    # Location-based filter
+    viewer_lat = request.GET.get('lat')
+    viewer_lng = request.GET.get('lng')
+    viewer_radius = request.GET.get('radius', 10)  # Default 10km
+    location_filter_active = False
     
-    return render(request, 'a_posts/home.html', {'posts' : posts, 'q': query})
+    if viewer_lat and viewer_lng:
+        try:
+            viewer_lat = float(viewer_lat)
+            viewer_lng = float(viewer_lng)
+            viewer_radius = float(viewer_radius)
+            location_filter_active = True
+            
+            # Filter posts within radius
+            nearby_posts = []
+            for post in posts:
+                # Only filter posts that have valid coordinates (allow 0.0 as valid)
+                if post.latitude is not None and post.longitude is not None:
+                    # Convert Decimal to float for math operations
+                    post_lat = float(post.latitude)
+                    post_lng = float(post.longitude)
+                    
+                    distance = calculate_distance(
+                        viewer_lat, viewer_lng,
+                        post_lat, post_lng
+                    )
+                    if distance <= viewer_radius:
+                        post.distance = round(distance, 1)  # Add distance attribute
+                        nearby_posts.append(post)
+            
+            # Sort by distance (closest first)
+            posts = sorted(nearby_posts, key=lambda p: p.distance)
+        except (ValueError, TypeError):
+            # If invalid coordinates, ignore location filter and use original posts
+            location_filter_active = False
+    
+    # Add distance=None for posts without location filter
+    if not location_filter_active:
+        for post in posts:
+            post.distance = None
+    
+    context = {
+        'posts': posts,
+        'q': query,
+        'location_filter_active': location_filter_active,
+    }
+    
+    return render(request, 'a_posts/home.html', context)
 
 
 # View to handle post creation
