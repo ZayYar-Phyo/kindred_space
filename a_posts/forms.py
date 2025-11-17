@@ -7,8 +7,9 @@ from .models import Post, Review
 class PostCreateForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['post_type', 'image', 'reason', 'body', 'tags', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
+        fields = ['post_type', 'title', 'image', 'reason', 'body', 'tags', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
         labels = {
+            'title': 'タイトル',
             'body': 'キャプション',
             'tags': 'カテゴリー',
             'post_type': '',
@@ -21,6 +22,7 @@ class PostCreateForm(ModelForm):
         }
         widgets = {
             'post_type': forms.HiddenInput(),  # Hidden, controlled by toggle buttons
+            'title': forms.TextInput(attrs={'placeholder': '例: 自転車を譲ります、英語レッスン募集中', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'required': True}),
             'body': forms.Textarea(attrs={'rows': 3, 'placeholder': 'このアイテムについての思いやりのメッセージを記入してください...', 'class': 'font1 text-1xl'}),
             'reason': forms.Textarea(attrs={'rows': 3, 'placeholder': 'なぜこれを提供しますか？', 'class': 'font1 text-1xl'}),
             'tags': forms.CheckboxSelectMultiple(),
@@ -28,21 +30,31 @@ class PostCreateForm(ModelForm):
             'longitude': forms.NumberInput(attrs={'step': '0.000001', 'placeholder': '例: 139.767125', 'required': True}),
             'display_area': forms.TextInput(attrs={'readonly': True, 'placeholder': '例: 大阪府 大阪市 北区'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].required = True
 
  
 # post edit form       
 class PostEditForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['body', 'tags']
+        fields = ['title', 'body', 'tags']
         labels = {
-            'body': '',
-            'tags': 'Categories',
+            'title': 'タイトル',
+            'body': 'キャプション',
+            'tags': 'カテゴリー',
         }
         widgets = {
+            'title': forms.TextInput(attrs={'placeholder': '例: 自転車を譲ります、英語レッスン募集中', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'required': True}),
             'body': forms.Textarea(attrs={'rows': 3,  'class': 'font1 text-1xl'}),
             'tags': forms.CheckboxSelectMultiple(),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].required = True
 
 
 # review submission form

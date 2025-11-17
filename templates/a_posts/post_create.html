@@ -36,6 +36,19 @@
         {% csrf_token %}
         {{ form.post_type }}
         
+        <!-- Title Field -->
+        <div class="mb-6">
+            <label for="{{ form.title.id_for_label }}" class="block mb-2 font-semibold">{{ form.title.label }}</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <ul class="errorlist">
+                    {% for error in form.title.errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+        
         <!-- Location Fieldset -->
         <div class="mb-6">
             <h3 class="mb-2">アイテム/サービスの場所</h3>

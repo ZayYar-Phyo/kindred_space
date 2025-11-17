@@ -41,8 +41,6 @@ def post_create_view(request):
         if form.is_valid():
             post = form.save(commit=False)
             post.user = request.user
-            if not post.title:
-                post.title = 'Untitled'
             post.save()
             form.save_m2m()
             return redirect('home')

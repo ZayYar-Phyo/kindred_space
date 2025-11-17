@@ -13,7 +13,46 @@
     <div class="pb-2">
         <form method='POST'>
             {% csrf_token %}
-            {{ form }}
+            
+            <!-- Title Field -->
+            <div class="mb-4">
+                <label for="{{ form.title.id_for_label }}" class="block mb-2 font-semibold">{{ form.title.label }}</label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.title.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- Body Field -->
+            <div class="mb-4">
+                <label for="{{ form.body.id_for_label }}" class="block mb-2 font-semibold">{{ form.body.label }}</label>
+                {{ form.body }}
+                {% if form.body.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.body.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
+            <!-- Tags Field -->
+            <div class="mb-4">
+                <label for="{{ form.tags.id_for_label }}" class="block mb-2 font-semibold">{{ form.tags.label }}</label>
+                {{ form.tags }}
+                {% if form.tags.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.tags.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            
             <div class="pt-4">
                 <button type="submit">Submit</button>
                 <a class="button secondaryAction ml-1" href="">Go Back</a>
