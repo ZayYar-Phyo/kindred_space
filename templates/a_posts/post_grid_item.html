@@ -1,0 +1,52 @@
+<article class="card overflow-hidden hover:shadow-lg transition-shadow duration-200">
+    <!-- Post Image - Clickable -->
+    <a href="{% url 'post' post.id %}" class="block relative">
+        <figure class="relative w-full aspect-[4/3] overflow-hidden bg-gray-200">
+            {% if post.image %}
+            <img class="w-full h-full object-cover" src="{{ post.image.url }}" alt="{{ post.title }}">
+            {% elif post.url %}
+            <img class="w-full h-full object-cover" src="{{ post.url }}" alt="{{ post.title }}">
+            {% else %}
+            <div class="w-full h-full flex items-center justify-center text-gray-400">
+                <span class="text-sm">画像なし</span>
+            </div>
+            {% endif %}
+            
+            <!-- Post Type Badge - Overlay on Image -->
+            {% if post.post_type %}
+            <div class="absolute top-3 right-3">
+                {% if post.post_type == 'GIVE' %}
+                <span class="bg-primary text-white px-3 py-1 rounded-full font-semibold text-sm shadow-lg">提供</span>
+                {% else %}
+                <span class="bg-primary text-white px-3 py-1 rounded-full font-semibold text-sm shadow-lg">依頼</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </figure>
+    </a>
+    
+    <!-- Post Info -->
+    <div class="p-4">
+        <!-- Title -->
+        <h3 class="font-bold text-lg mb-2 line-clamp-2 min-h-[3.5rem]">
+            <a href="{% url 'post' post.id %}" class="hover:text-primary transition-colors">
+                {{ post.title }}
+            </a>
+        </h3>
+        
+        <!-- Location -->
+        <div class="flex items-center gap-2 text-gray-600 text-sm">
+            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span class="line-clamp-1">
+                {% if post.display_area %}
+                    {{ post.display_area }}
+                {% else %}
+                    場所未設定
+                {% endif %}
+            </span>
+        </div>
+    </div>
+</article>

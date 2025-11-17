@@ -2,8 +2,20 @@
 
 {% block content %}
 
-{% for post in posts %}
-{% include 'a_posts/post.html' %}
-{% endfor %}
+<!-- Grid Container -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-4 py-6">
+    {% for post in posts %}
+    {% include 'a_posts/post_grid_item.html' %}
+    {% endfor %}
+</div>
+
+{% if not posts %}
+<div class="flex flex-col items-center justify-center py-20 text-gray-500">
+    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+    </svg>
+    <p class="text-lg">投稿がありません</p>
+</div>
+{% endif %}
 
 {% endblock %}
