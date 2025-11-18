@@ -67,16 +67,13 @@
 
     <!-- Search Bar -->
     <div class="flex items-center flex-1 max-w-md mx-4">
-        <form method="GET" action="{% url 'home' %}" class="w-full">
-            <div
-                class="flex items-center bg-white rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)] focus-within:ring-2 focus-within:ring-primary transition-all">
-                <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="何をお探しですか？"
-                    class="flex-1 px-4 py-2 text-gray-800 bg-transparent border-none focus:outline-none rounded-l-lg" />
-                <button type="submit"
-                    class="flex items-center justify-center px-4 md:px-6 py-2 bg-white border-2 border-[#4CAF50] text-[#4CAF50] hover:bg-gray-50 font-semibold rounded-r-lg transition-colors duration-200">
-                    検索
-                </button>
-            </div>
+        <form method="GET" action="{% url 'home' %}" class="w-full flex gap-2">
+            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="何をお探しですか？"
+                class="flex-1 px-4 py-2 text-gray-800 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4CAF50] focus:border-transparent" />
+            <button type="submit"
+                class="px-6 py-2 bg-white border-2 border-[#4CAF50] text-[#4CAF50] hover:bg-gray-50 font-semibold rounded-lg transition-colors duration-200 whitespace-nowrap">
+                検索
+            </button>
         </form>
     </div>
 
