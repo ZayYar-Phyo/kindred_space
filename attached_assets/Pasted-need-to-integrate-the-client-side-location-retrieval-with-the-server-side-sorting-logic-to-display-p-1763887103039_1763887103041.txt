@@ -1,0 +1,38 @@
+need to integrate the client-side location retrieval with the server-side sorting logic to display posts sorted by distance on the homepage.
+
+Goal: Modify the initial post loading function to pass the viewer's coordinates to the API, and ensure the API returns the posts sorted by proximity.
+
+Task 1: Frontend Location Capture and API Call (in JavaScript)
+Modify the JavaScript code that runs on the homepage (likely in app.js or the main page load script) to perform the following sequence:
+
+Check/Get Location: Create a function (e.g., loadLocalPosts()) that first attempts to get the user's location using the Geolocation API (navigator.geolocation.getCurrentPosition).
+
+Construct API URL: If location (lat, lng) is successfully retrieved, append these coordinates to the post fetching API endpoint. Assume the endpoint is /api/posts.
+
+Example: /api/posts?lat={user_lat}&lng={user_lng}&radius=10
+
+Fetch & Render: Call the modified API URL and render the received posts into the post-grid section.
+
+Handle Denial/Failure: If the user denies location access, use a default fallback location (e.g., the center of Osaka's coordinates) or simply fetch all posts without the proximity filter (sorted by date).
+
+Task 2: Backend Proximity Sorting Logic (API Endpoint)
+Modify the backend logic that handles the post fetching endpoint (e.g., /api/posts) to perform the sorting:
+
+Accept Parameters: The endpoint must accept lat and lng query parameters from the frontend.
+
+Distance Calculation: Implement the Haversine formula within the database query to calculate the real-time distance (in kilometers) between the item's saved coordinates (post.latitude, post.longitude) and the viewer's coordinates (lat, lng).
+
+Filter & Sort:
+
+Filter (Radius): Filter out posts that are outside a reasonable default radius (e.g., 10 km, using the radius parameter if provided).
+
+Sort: Order the final list of posts by the calculated distance ASCENDING (smallest distance first).
+
+Return Data: Ensure the JSON response for each post includes the newly calculated distance_km field.
+
+Task 3: Frontend Display Update
+Update the post card rendering logic on the homepage to use the new data:
+
+Display Distance: Replace the placeholder location text (e.g., "Osaka-shi, Yodogawa-ku") with the fetched distance field: {{ post.distance_km }} km away.
+
+Please begin by modifying the frontend JavaScript (in app.js) to implement the loadLocalPosts() function that fetches and stores the viewer's location, and then calls the post fetching API with the required coordinates.

@@ -46,6 +46,9 @@
                 {% else %}
                     場所未設定
                 {% endif %}
+                {% if post.distance is not None %}
+                    <span class="text-primary font-semibold"> • {{ post.distance }} km</span>
+                {% endif %}
             </span>
         </div>
     </div>
