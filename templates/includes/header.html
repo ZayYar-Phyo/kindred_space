@@ -40,8 +40,7 @@
         <div class="flex md:hidden items-center gap-2">
             <button @click="useCurrentLocation()"
                 :disabled="isLoadingLocation"
-                :class="hasLocationFilter ? 'bg-primary' : 'bg-gray-300'"
-                class="flex items-center justify-center w-10 h-10 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-80"
+                class="flex items-center justify-center w-10 h-10 bg-primary hover:bg-primary-dark rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 x-cloak>
                 <!-- Loading spinner or location icon -->
                 <svg x-show="!isLoadingLocation" class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
