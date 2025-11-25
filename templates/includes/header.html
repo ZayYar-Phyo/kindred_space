@@ -2,8 +2,8 @@
         mobilenavOpen: false,
         scrollingDown: false,
         lastScroll: 0,
-        locationModalOpen: false,
-        hasLocationFilter: false
+        hasLocationFilter: false,
+        isLoadingLocation: false
     }" x-init="
         window.addEventListener('scroll', () => {
             let currentScroll = window.pageYOffset;
@@ -38,18 +38,19 @@
 
         <!-- Location Selector Button -->
         <div class="hidden md:flex items-center">
-            <button @click="locationModalOpen = true"
-                class="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap min-w-[180px]"
+            <button @click="useCurrentLocation()"
+                :disabled="isLoadingLocation"
+                class="flex items-center gap-1.5 bg-primary hover:bg-primary-dark text-white font-semibold px-4 py-2 rounded-lg transition-colors duration-200 whitespace-nowrap min-w-[180px] disabled:opacity-50 disabled:cursor-not-allowed"
                 x-cloak>
                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                         d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
                         clip-rule="evenodd"></path>
                 </svg>
-                <span x-text="hasLocationFilter ? '現在地で絞り込み中' : '現在地を使用'"></span>
+                <span x-text="isLoadingLocation ? '位置情報を取得中...' : (hasLocationFilter ? '現在地で絞り込み中' : '現在地を使用')"></span>
             </button>
             <!-- Clear filter button if active -->
-            <button x-show="hasLocationFilter" @click="clearLocationFilter()"
+            <button x-show="hasLocationFilter && !isLoadingLocation" @click="clearLocationFilter()"
                 class="ml-2 text-gray-500 hover:text-gray-700 text-sm" x-cloak>
                 ✕
             </button>
@@ -124,66 +125,9 @@
         </ul>
     </nav>
 
-    <!-- Location Selection Modal -->
-    <div x-show="locationModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title"
-        role="dialog" aria-modal="true">
-        <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <!-- Background overlay -->
-            <div x-show="locationModalOpen" x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-                x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
-                x-transition:leave-end="opacity-0" @click="locationModalOpen = false"
-                class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
-            <!-- Modal panel -->
-            <div x-show="locationModalOpen" x-transition:enter="ease-out duration-300"
-                x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave="ease-in duration-200"
-                x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
-
-                <div class="sm:flex sm:items-start">
-                    <div
-                        class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-primary bg-opacity-10 sm:mx-0 sm:h-10 sm:w-10">
-                        <svg class="h-6 w-6 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                                clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            現在地で絞り込み
-                        </h3>
-                        <div class="mt-2">
-                            <p class="text-sm text-gray-500">
-                                あなたの現在地周辺のアイテムやサービスを表示します。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-3">
-                    <button type="button" @click="useCurrentLocation($event)"
-                        class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 bg-primary text-base font-medium text-white hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:ml-3 sm:w-auto sm:text-sm transition-colors duration-200">
-                        現在地を使用
-                    </button>
-                    <button type="button" @click="locationModalOpen = false"
-                        class="mt-3 w-full inline-flex justify-center rounded-lg border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary sm:mt-0 sm:w-auto sm:text-sm">
-                        キャンセル
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Location Filter Script -->
     <script>
-        function useCurrentLocation(event) {
+        function useCurrentLocation() {
             console.log('[Location] useCurrentLocation called');
             
             if (!navigator.geolocation) {
@@ -192,10 +136,11 @@
                 return;
             }
 
-            // Show loading state - use currentTarget to get the button even if text is clicked
-            const btn = event.currentTarget;
-            btn.disabled = true;
-            btn.textContent = '位置情報を取得中...';
+            // Set loading state through Alpine
+            const header = document.querySelector('header');
+            if (header && header.__x) {
+                header.__x.$data.isLoadingLocation = true;
+            }
             console.log('[Location] Requesting geolocation...');
 
             navigator.geolocation.getCurrentPosition(
@@ -227,8 +172,11 @@
                 function (error) {
                     console.error('[Location] Geolocation error:', error);
                     
-                    btn.disabled = false;
-                    btn.textContent = '現在地を使用';
+                    // Reset loading state
+                    const header = document.querySelector('header');
+                    if (header && header.__x) {
+                        header.__x.$data.isLoadingLocation = false;
+                    }
 
                     let errorMessage = '位置情報の取得に失敗しました。';
                     switch (error.code) {
