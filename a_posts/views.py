@@ -53,6 +53,9 @@ def home_view(request):
     viewer_radius = request.GET.get('radius')
     location_filter_active = False
     
+    # Debug logging
+    print(f"[BACKEND] Location params received: lat={viewer_lat}, lng={viewer_lng}, radius={viewer_radius}")
+    
     # Harden radius parsing with default fallback
     try:
         viewer_radius = float(viewer_radius) if viewer_radius else 10.0

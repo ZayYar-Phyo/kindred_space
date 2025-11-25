@@ -183,7 +183,10 @@
     <!-- Location Filter Script -->
     <script>
         function useCurrentLocation(event) {
+            console.log('[Location] useCurrentLocation called');
+            
             if (!navigator.geolocation) {
+                console.error('[Location] Geolocation not supported');
                 alert('お使いのブラウザは位置情報をサポートしていません。');
                 return;
             }
@@ -192,6 +195,7 @@
             const btn = event.currentTarget;
             btn.disabled = true;
             btn.textContent = '位置情報を取得中...';
+            console.log('[Location] Requesting geolocation...');
 
             navigator.geolocation.getCurrentPosition(
                 function (position) {
@@ -199,19 +203,29 @@
                     const lng = position.coords.longitude;
                     const radius = 10; // Default 10km radius
 
+                    console.log('[Location] Position obtained:', { lat, lng, radius });
+
                     // Store in sessionStorage
                     sessionStorage.setItem('viewer_latitude', lat);
                     sessionStorage.setItem('viewer_longitude', lng);
                     sessionStorage.setItem('viewer_radius', radius);
+                    console.log('[Location] Saved to sessionStorage');
 
                     // Reload page with location parameters
                     const url = new URL(window.location.href);
                     url.searchParams.set('lat', lat);
                     url.searchParams.set('lng', lng);
                     url.searchParams.set('radius', radius);
-                    window.location.href = url.toString();
+                    
+                    const newUrl = url.toString();
+                    console.log('[Location] Redirecting to:', newUrl);
+                    
+                    // Use replace to avoid adding to history
+                    window.location.replace(newUrl);
                 },
                 function (error) {
+                    console.error('[Location] Geolocation error:', error);
+                    
                     btn.disabled = false;
                     btn.textContent = '現在地を使用';
 
@@ -219,15 +233,23 @@
                     switch (error.code) {
                         case error.PERMISSION_DENIED:
                             errorMessage = 'ブラウザの設定で位置情報のアクセスを許可してください。';
+                            console.error('[Location] Permission denied');
                             break;
                         case error.POSITION_UNAVAILABLE:
                             errorMessage = '位置情報が利用できません。';
+                            console.error('[Location] Position unavailable');
                             break;
                         case error.TIMEOUT:
                             errorMessage = '位置情報の取得がタイムアウトしました。';
+                            console.error('[Location] Timeout');
                             break;
                     }
                     alert(errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
                 }
             );
         }
@@ -247,22 +269,38 @@
 
         // Auto-apply location filter from sessionStorage on page load
         document.addEventListener('DOMContentLoaded', function () {
+            console.log('[Location] DOMContentLoaded - checking sessionStorage');
+            
             const savedLat = sessionStorage.getItem('viewer_latitude');
             const savedLng = sessionStorage.getItem('viewer_longitude');
             const savedRadius = sessionStorage.getItem('viewer_radius') || '10';  // Default to 10km
+
+            console.log('[Location] SessionStorage values:', { savedLat, savedLng, savedRadius });
 
             // If we have saved location but URL doesn't have parameters, reload with them
             if (savedLat && savedLng) {
                 const url = new URL(window.location.href);
                 const urlLat = url.searchParams.get('lat');
+                const urlLng = url.searchParams.get('lng');
+                
+                console.log('[Location] URL params:', { urlLat, urlLng, pathname: window.location.pathname });
 
-                if (!urlLat && window.location.pathname === '/') {
+                // Only redirect if we're on home page AND URL doesn't have lat/lng params
+                if (!urlLat && !urlLng && window.location.pathname === '/') {
                     url.searchParams.set('lat', savedLat);
                     url.searchParams.set('lng', savedLng);
                     url.searchParams.set('radius', savedRadius);
+                    
+                    const newUrl = url.toString();
+                    console.log('[Location] Auto-applying filter, redirecting to:', newUrl);
+                    
                     // Full reload to trigger backend filter
-                    window.location.href = url.toString();
+                    window.location.replace(newUrl);
+                } else {
+                    console.log('[Location] Skipping redirect - URL already has params or not on home page');
                 }
+            } else {
+                console.log('[Location] No saved location in sessionStorage');
             }
         });
     </script>
