@@ -28,7 +28,7 @@ class PostCreateForm(ModelForm):
             'tags': forms.CheckboxSelectMultiple(),
             'latitude': forms.NumberInput(attrs={'step': '0.000001', 'placeholder': '例: 35.681236', 'required': True}),
             'longitude': forms.NumberInput(attrs={'step': '0.000001', 'placeholder': '例: 139.767125', 'required': True}),
-            'display_area': forms.TextInput(attrs={'readonly': True, 'placeholder': '例: 大阪府 大阪市 北区'}),
+            'display_area': forms.TextInput(attrs={'placeholder': '例: 大阪府 大阪市 北区', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]'}),
         }
     
     def __init__(self, *args, **kwargs):
