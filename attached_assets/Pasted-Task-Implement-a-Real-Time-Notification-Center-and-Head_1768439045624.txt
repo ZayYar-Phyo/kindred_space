@@ -1,0 +1,100 @@
+Task: Implement a Real-Time Notification Center and Header integration based on the requirements below.
+
+Context & Tech Stack:
+
+Language: [e.g., TypeScript / Python]
+
+Frontend: [e.g., React / Next.js / HTML+Jinja]
+
+Styling: [e.g., Tailwind CSS / CSS Modules]
+
+Backend/DB: [e.g., Node.js + PostgreSQL / Flask + SQLite]
+
+Icons: [e.g., Lucide React / FontAwesome]
+
+Objective: Create a notification system where a user sees a Bell icon in the header. When clicked, it redirects to a dedicated /notifications page. The icon must show a red badge for unread items. The list view must display detailed notification cards.
+
+Step-by-Step Implementation Instructions:
+
+1. Database Schema & Backend
+
+Create a Notification model/table with the following fields:
+
+id (Primary Key)
+
+recipient_id (User relation)
+
+sender_id (User relation, nullable for system messages)
+
+message (Text)
+
+is_read (Boolean, default false)
+
+created_at (Timestamp)
+
+Create an API endpoint (e.g., GET /api/notifications) that returns the list sorted by created_at (newest first).
+
+Create an endpoint or logic to get the unread count for the badge.
+
+2. Header Component (The Trigger)
+
+Locate the existing navigation/header bar.
+
+Add a Bell Icon.
+
+Real-time Logic:
+
+Fetch the unread count on load.
+
+Implementation Strategy: Use polling (every 30 seconds) or WebSockets (if available) to update this count automatically.
+
+Visuals: If unread_count > 0, render a small Red Badge absolute-positioned over the top-right corner of the bell containing the number.
+
+Interaction: Ensure clicking the Bell icon redirects the user to /notifications.
+
+3. Notification List Page (/notifications)
+
+Create a new page/view for the Notification Center.
+
+Fetch the full list of notifications.
+
+UI Layout (Data Display):
+
+Render a list of items. Each item must be a distinct card or row.
+
+Avatar: Display the Sender's avatar on the left. If no sender (system message), use a default generic icon.
+
+Content: Display the message. Apply CSS truncation (e.g., line-clamp-2 or text-overflow) to limit it to max 2 lines.
+
+Timestamp: Display a relative time string (e.g., "5 mins ago", "2 days ago") next to the content. Use a library like date-fns or a helper function for this.
+
+Empty State:
+
+If the list length is 0, display a centered, user-friendly message: "You're all caught up!" with a subtle icon.
+
+4. Styling & Polish
+
+Ensure the Notifications Page looks clean and distinct from the rest of the content.
+
+Use standard padding and border separators between notification items.
+
+Mark notifications as "read" when the user visits this page (optional extra: trigger an API call to clear the badge count).
+
+Acceptance Criteria Checklist:
+
+[ ] Bell icon redirects to Notifications Page.
+
+[ ] Red numerical badge appears automatically on new messages.
+
+[ ] List shows Avatar, Message (2-line max), and Relative Timestamp.
+
+[ ] Empty state displays "You're all caught up!".
+
+💡 How to use this prompt effectively
+Fill in the placeholders: Replace [e.g., React] with your actual stack so the Agent writes the correct code.
+
+Define "Real-Time": If you don't have a WebSocket server set up, the Agent will likely default to "Polling" (checking the server every X seconds). This is usually sufficient for an MVP.
+
+Mock Data: If your database isn't populated, you can add this line to the end of the prompt:
+
+"Please generate a seed script or mock data so I can test the notifications immediately."
