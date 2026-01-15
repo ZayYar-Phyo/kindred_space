@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import Post, Tag, UserProfile, Review, Follow
+from .models import Post, Tag, UserProfile, Review, Follow, Notification
 from .forms import *
 from bs4 import BeautifulSoup
 import requests
@@ -415,3 +415,34 @@ def toggle_follow_view(request, username):
         messages.success(request, f'{user_to_follow.username}さんをフォローしました！')
     
     return redirect('profile', username=username)
+
+
+@login_required
+def notifications_view(request):
+    notifications = Notification.objects.filter(recipient=request.user).order_by('-created_at')
+    unread_count = notifications.filter(is_read=False).count()
+    
+    # Mark all as read when user visits the page
+    notifications.filter(is_read=False).update(is_read=True)
+    
+    return render(request, 'a_posts/notifications.html', {
+        'notifications': notifications,
+        'unread_count': unread_count
+    })
+
+
+@login_required
+def notifications_unread_count_view(request):
+    unread_count = Notification.objects.filter(recipient=request.user, is_read=False).count()
+    return JsonResponse({'unread_count': unread_count})
+
+
+@login_required
+def notification_mark_read_view(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id, recipient=request.user)
+    notification.is_read = True
+    notification.save()
+    
+    if notification.link:
+        return redirect(notification.link)
+    return redirect('notifications')

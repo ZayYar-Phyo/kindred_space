@@ -35,6 +35,9 @@ urlpatterns = [
     path('users/<str:username>/', profile_view, name='profile'),
     path('users/<str:username>/review/', submit_review_view, name='submit-review'),
     path('users/<str:username>/follow/', toggle_follow_view, name='toggle-follow'),
+    path('notifications/', notifications_view, name='notifications'),
+    path('api/notifications/unread-count/', notifications_unread_count_view, name='notifications-unread-count'),
+    path('notifications/<int:notification_id>/read/', notification_mark_read_view, name='notification-mark-read'),
 ]
 
 if settings.DEBUG:

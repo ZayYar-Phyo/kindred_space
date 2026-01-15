@@ -15,3 +15,6 @@ class UserAdmin(admin.ModelAdmin):
 admin.site.register(Post)
 admin.site.register(Tag)
 admin.site.register(UserProfile)
+admin.site.register(Review)
+admin.site.register(Follow)
+admin.site.register(Notification)

@@ -135,6 +135,36 @@ class Follow(models.Model):
         unique_together = [['follower', 'following']]
 
 
+class Notification(models.Model):
+    NOTIFICATION_TYPES = [
+        ('follow', 'New Follower'),
+        ('review', 'New Review'),
+        ('post', 'New Post'),
+        ('system', 'System Message'),
+    ]
+    
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications_received',
+                                 help_text='User who receives the notification')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications_sent',
+                              null=True, blank=True,
+                              help_text='User who triggered the notification (null for system messages)')
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='system')
+    message = models.TextField(help_text='Notification message content')
+    is_read = models.BooleanField(default=False)
+    link = models.CharField(max_length=500, blank=True, default='',
+                           help_text='URL to redirect when notification is clicked')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        sender_name = self.sender.username if self.sender else 'System'
+        return f"{sender_name} → {self.recipient.username}: {self.message[:50]}"
+
+    class Meta:
+        verbose_name = '通知'
+        verbose_name_plural = '通知一覧'
+        ordering = ['-created_at']
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -145,3 +175,29 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     if hasattr(instance, 'profile'):
         instance.profile.save()
+
+
+# Signal to create notification when someone follows
+@receiver(post_save, sender=Follow)
+def create_follow_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.objects.create(
+            recipient=instance.following,
+            sender=instance.follower,
+            notification_type='follow',
+            message=f'{instance.follower.username}さんがあなたをフォローしました',
+            link=f'/users/{instance.follower.username}/'
+        )
+
+
+# Signal to create notification when someone leaves a review
+@receiver(post_save, sender=Review)
+def create_review_notification(sender, instance, created, **kwargs):
+    if created:
+        Notification.objects.create(
+            recipient=instance.reviewee,
+            sender=instance.reviewer,
+            notification_type='review',
+            message=f'{instance.reviewer.username}さんがあなたを{instance.rating}つ星で評価しました',
+            link=f'/users/{instance.reviewer.username}/'
+        )
