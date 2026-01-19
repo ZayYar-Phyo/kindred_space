@@ -78,8 +78,7 @@
     </figure>
 
     <div class="p-4">
-        <h1 class="text-xl font-bold text-gray-900 mb-1">{{ post.title }}</h1>
-        <p class="text-sm text-gray-500 mb-4">投稿日: {{ post.created|date:"Y年n月j日" }}</p>
+        <h1 class="text-xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
         
         <div class="flex items-center justify-between py-3 border-b border-gray-100">
             {% if post.user %}
