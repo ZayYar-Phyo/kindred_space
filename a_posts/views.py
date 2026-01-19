@@ -522,6 +522,13 @@ def chat_messages_view(request, room_id):
         is_read=False
     ).exclude(sender=request.user).update(is_read=True)
     
+    Notification.objects.filter(
+        recipient=request.user,
+        notification_type='message',
+        link=f'/chat/room/{chat_room.id}/',
+        is_read=False
+    ).update(is_read=True)
+    
     return render(request, 'a_posts/chat_room.html', {
         'chat_room': chat_room,
         'messages': chat_messages,

@@ -155,6 +155,7 @@ class Notification(models.Model):
         ('follow', 'New Follower'),
         ('review', 'New Review'),
         ('post', 'New Post'),
+        ('message', 'New Message'),
         ('system', 'System Message'),
     ]
     
@@ -256,4 +257,25 @@ def create_review_notification(sender, instance, created, **kwargs):
             notification_type='review',
             message=f'{instance.reviewer.username}さんがあなたを{instance.rating}つ星で評価しました',
             link=f'/users/{instance.reviewer.username}/'
+        )
+
+
+# Signal to create notification when someone sends a message
+@receiver(post_save, sender=Message)
+def create_message_notification(sender, instance, created, **kwargs):
+    if created:
+        chat_room = instance.chat_room
+        recipient = chat_room.get_other_participant(instance.sender)
+        if recipient is None:
+            return
+        title = chat_room.post.title or chat_room.post.display_area or '投稿'
+        post_title = title[:20]
+        if len(title) > 20:
+            post_title += '...'
+        Notification.objects.create(
+            recipient=recipient,
+            sender=instance.sender,
+            notification_type='message',
+            message=f'{instance.sender.username}さんから「{post_title}」についてメッセージが届きました',
+            link=f'/chat/room/{chat_room.id}/'
         )
