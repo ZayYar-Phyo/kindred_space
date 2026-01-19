@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KindredSpace - プレゼンテーション</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        .presentation {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .slides-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.5s ease;
+        }
+        
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .slide.prev {
+            transform: translateX(-100%);
+        }
+        
+        /* Slide 1 - Title */
+        .slide-1 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        .logo {
+            font-size: 5rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 20px;
+            text-shadow: 0 0 30px rgba(76, 175, 80, 0.5);
+        }
+        
+        .tagline {
+            font-size: 2rem;
+            color: #e0e0e0;
+            margin-bottom: 40px;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #888;
+        }
+        
+        /* Slide 2 - Problem */
+        .slide-2 {
+            background: linear-gradient(135deg, #2d1b69 0%, #1a1a2e 100%);
+        }
+        
+        .slide-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 50px;
+            color: #4CAF50;
+        }
+        
+        .problem-list {
+            list-style: none;
+            font-size: 1.5rem;
+            line-height: 2.5;
+        }
+        
+        .problem-list li {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .problem-list li::before {
+            content: "❌";
+            font-size: 1.5rem;
+        }
+        
+        /* Slide 3 - Solution */
+        .slide-3 {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+        
+        .solution-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            max-width: 1000px;
+        }
+        
+        .solution-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+        
+        .solution-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .solution-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        .solution-card p {
+            font-size: 1rem;
+            color: #ccc;
+        }
+        
+        /* Slide 4 - Features */
+        .slide-4 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+        }
+        
+        .feature-card {
+            background: rgba(76, 175, 80, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            border: 1px solid rgba(76, 175, 80, 0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(76, 175, 80, 0.2);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #4CAF50;
+        }
+        
+        .feature-card p {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* Slide 5 - Chat System */
+        .slide-5 {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1a1a2e 100%);
+        }
+        
+        .chat-demo {
+            display: flex;
+            gap: 60px;
+            align-items: center;
+            max-width: 1000px;
+        }
+        
+        .chat-mockup {
+            background: #fff;
+            border-radius: 20px;
+            width: 350px;
+            height: 500px;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+        
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+        }
+        
+        .message.received {
+            background: #f0f0f0;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .message.sent {
+            background: #4CAF50;
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chat-features {
+            flex: 1;
+        }
+        
+        .chat-features h3 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            color: #4CAF50;
+        }
+        
+        .chat-features ul {
+            list-style: none;
+            font-size: 1.2rem;
+            line-height: 2.2;
+        }
+        
+        .chat-features li::before {
+            content: "✅ ";
+            color: #4CAF50;
+        }
+        
+        /* Slide 6 - Tech Stack */
+        .slide-6 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d1b69 100%);
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            max-width: 1000px;
+        }
+        
+        .tech-item {
+            text-align: center;
+            padding: 30px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+        }
+        
+        .tech-item .icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .tech-item h4 {
+            font-size: 1.2rem;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        
+        .tech-item p {
+            font-size: 0.9rem;
+            color: #888;
+        }
+        
+        /* Slide 7 - Future */
+        .slide-7 {
+            background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 100%);
+        }
+        
+        .future-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 800px;
+        }
+        
+        .future-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: rgba(76, 175, 80, 0.1);
+            padding: 25px 35px;
+            border-radius: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .future-item .num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4CAF50;
+        }
+        
+        .future-item .text {
+            font-size: 1.3rem;
+        }
+        
+        /* Slide 8 - Thank You */
+        .slide-8 {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        }
+        
+        .thank-you {
+            font-size: 4rem;
+            font-weight: 700;
+            color: #4CAF50;
+            margin-bottom: 30px;
+        }
+        
+        .contact-info {
+            font-size: 1.3rem;
+            color: #ccc;
+            margin-bottom: 50px;
+        }
+        
+        .eco-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(76, 175, 80, 0.2);
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: 2px solid #4CAF50;
+        }
+        
+        .eco-badge span {
+            font-size: 1.2rem;
+        }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+        }
+        
+        .nav-btn {
+            background: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+        
+        .nav-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slide-counter {
+            font-size: 1rem;
+            color: #888;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+        
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="presentation">
+        <div class="slides-container">
+            <!-- Slide 1: Title -->
+            <div class="slide slide-1 active" data-slide="1">
+                <div class="logo">KindredSpace</div>
+                <div class="tagline">地域コミュニティのシェアリングプラットフォーム</div>
+                <div class="subtitle">〜 お金を使わない、つながりを大切にする 〜</div>
+            </div>
+            
+            <!-- Slide 2: Problem -->
+            <div class="slide slide-2" data-slide="2">
+                <h2 class="slide-title">課題</h2>
+                <ul class="problem-list">
+                    <li>使わなくなった物が家に溢れている</li>
+                    <li>必要なものがあるが、買う余裕がない</li>
+                    <li>地域のつながりが希薄になっている</li>
+                    <li>スキルや知識を共有する場がない</li>
+                </ul>
+            </div>
+            
+            <!-- Slide 3: Solution -->
+            <div class="slide slide-3" data-slide="3">
+                <h2 class="slide-title">KindredSpaceの解決策</h2>
+                <div class="solution-grid">
+                    <div class="solution-card">
+                        <div class="solution-icon">🎁</div>
+                        <h3>提供（GIVE）</h3>
+                        <p>不要なものを地域の人に提供</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">🙋</div>
+                        <h3>依頼（REQUEST）</h3>
+                        <p>必要なものを地域に依頼</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">📍</div>
+                        <h3>位置情報連携</h3>
+                        <p>10km圏内の近隣住民とマッチング</p>
+                    </div>
+                    <div class="solution-card">
+                        <div class="solution-icon">⭐</div>
+                        <h3>信頼スコア</h3>
+                        <p>評価システムで安心取引</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 4: Features -->
+            <div class="slide slide-4" data-slide="4">
+                <h2 class="slide-title">主な機能</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📸</div>
+                        <h3>マルチ画像投稿</h3>
+                        <p>2〜4枚の画像をアップロード</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💬</div>
+                        <h3>リアルタイムチャット</h3>
+                        <p>投稿者と直接やり取り</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔔</div>
+                        <h3>通知システム</h3>
+                        <p>新着メッセージを即座にお知らせ</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📍</div>
+                        <h3>位置フィルター</h3>
+                        <p>現在地から近い投稿を表示</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>フォロー機能</h3>
+                        <p>気になるユーザーをフォロー</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">⭐</div>
+                        <h3>レビュー・評価</h3>
+                        <p>取引後に相互評価</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 5: Chat System -->
+            <div class="slide slide-5" data-slide="5">
+                <h2 class="slide-title">チャットシステム</h2>
+                <div class="chat-demo">
+                    <div class="chat-mockup">
+                        <div class="chat-header">
+                            <div class="chat-avatar">田</div>
+                            <div>
+                                <div style="font-weight: 600;">田中さん</div>
+                                <div style="font-size: 0.8rem; color: #888;">本棚について</div>
+                            </div>
+                        </div>
+                        <div class="chat-messages">
+                            <div class="message received">こんにちは！本棚まだありますか？</div>
+                            <div class="message sent">はい、まだありますよ！</div>
+                            <div class="message received">取りに行きたいのですが、いつがご都合よろしいですか？</div>
+                            <div class="message sent">土曜日の午後はいかがでしょうか？</div>
+                            <div class="message received">完璧です！ありがとうございます 🙏</div>
+                        </div>
+                    </div>
+                    <div class="chat-features">
+                        <h3>チャット機能の特徴</h3>
+                        <ul>
+                            <li>リアルタイムメッセージング</li>
+                            <li>投稿に紐づいた会話管理</li>
+                            <li>新着メッセージ通知</li>
+                            <li>既読ステータス表示</li>
+                            <li>投稿オーナー専用お問い合わせ一覧</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 6: Tech Stack -->
+            <div class="slide slide-6" data-slide="6">
+                <h2 class="slide-title">技術スタック</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <div class="icon">🐍</div>
+                        <h4>Django 5.2</h4>
+                        <p>バックエンド</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="icon">🎨</div>
+                        <h4>Tailwind CSS</h4>
+                        <p>UIスタイリング</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="icon">⚡</div>
+                        <h4>Alpine.js</h4>
+                        <p>インタラクティブUI</p>
+                    </div>
+                    <div class="tech-item">
+                        <div class="icon">🗺️</div>
+                        <h4>OpenStreetMap</h4>
+                        <p>位置情報サービス</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 7: Future -->
+            <div class="slide slide-7" data-slide="7">
+                <h2 class="slide-title">今後の展望</h2>
+                <div class="future-list">
+                    <div class="future-item">
+                        <span class="num">01</span>
+                        <span class="text">WebSocket対応でさらにリアルタイムな体験</span>
+                    </div>
+                    <div class="future-item">
+                        <span class="num">02</span>
+                        <span class="text">スキルシェア機能の追加（教える・学ぶ）</span>
+                    </div>
+                    <div class="future-item">
+                        <span class="num">03</span>
+                        <span class="text">コミュニティイベント機能</span>
+                    </div>
+                    <div class="future-item">
+                        <span class="num">04</span>
+                        <span class="text">モバイルアプリ版の開発</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slide 8: Thank You -->
+            <div class="slide slide-8" data-slide="8">
+                <div class="thank-you">ありがとうございました</div>
+                <div class="contact-info">ご質問・フィードバックをお待ちしております</div>
+                <div class="eco-badge">
+                    <span style="font-size: 2rem;">🌱</span>
+                    <span>サステナブルな地域コミュニティを目指して</span>
+                </div>
+            </div>
+            
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        
+        <nav class="nav">
+            <button class="nav-btn" id="prevBtn" onclick="prevSlide()">← 前へ</button>
+            <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">8</span></span>
+            <button class="nav-btn" id="nextBtn" onclick="nextSlide()">次へ →</button>
+        </nav>
+    </div>
+    
+    <div class="keyboard-hint">← → キーで操作</div>
+    
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 8;
+        
+        function updateSlide() {
+            document.querySelectorAll('.slide').forEach((slide, index) => {
+                slide.classList.remove('active', 'prev');
+                if (index + 1 === currentSlide) {
+                    slide.classList.add('active');
+                } else if (index + 1 < currentSlide) {
+                    slide.classList.add('prev');
+                }
+            });
+            
+            document.getElementById('currentSlide').textContent = currentSlide;
+            document.getElementById('prevBtn').disabled = currentSlide === 1;
+            document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+            
+            const progress = (currentSlide / totalSlides) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+        
+        function nextSlide() {
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+        
+        function prevSlide() {
+            if (currentSlide > 1) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+        
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+        
+        updateSlide();
+    </script>
+</body>
+</html>

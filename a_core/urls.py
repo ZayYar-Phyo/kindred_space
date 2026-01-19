@@ -20,6 +20,7 @@ from django.urls import path
 from a_posts.views import * # Import the view
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -42,6 +43,7 @@ urlpatterns = [
     path('chat/room/<int:room_id>/', chat_messages_view, name='chat_messages'),
     path('chat/room/<int:room_id>/api/', chat_messages_api, name='chat_messages_api'),
     path('chats/', chat_list_view, name='chat_list'),
+    path('presentation/', TemplateView.as_view(template_name='presentation.html'), name='presentation'),
 ]
 
 if settings.DEBUG:
