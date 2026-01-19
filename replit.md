@@ -4,6 +4,20 @@
 KindredSpace is a Django-based web application designed as a Japanese community sharing platform. Its core purpose is to facilitate the giving and requesting of items or skills among users without monetary exchange. The platform incorporates location-based functionalities using Japanese postal codes and geocoding, aiming to foster local community engagement and resource sharing. It includes robust user profiles with dynamic reputation scores, peer-to-peer rating systems, and a focus on intuitive Japanese-language UI.
 
 ## Recent Changes (January 2026)
+- Redesigned post detail page (post_page.html):
+  - Image gallery with Swiper.js carousel at top
+  - Post owner section with avatar, name, and reputation stars
+  - Location display (prefecture + display_area)
+  - Post caption/description with proper formatting
+  - Chat button for visitors, "お問い合わせ" (Inquiries) button for owners
+  - Edit/delete buttons for post owners
+- Real-time chat system for post inquiries:
+  - ChatRoom model links posts with conversation participants
+  - Message model stores chat messages with read status
+  - Polling-based real-time updates (2-second interval)
+  - Chat room UI with message bubbles (green for sent, gray for received)
+  - Post thumbnail preview in chat for context
+  - Chat list views for both post-specific and all conversations
 - Multi-image upload system (2-4 images required per post):
   - PostImage model stores multiple images with order field for gallery sequence
   - Post.image field now optional for backward compatibility
@@ -104,9 +118,13 @@ It includes responsive design for all components, an auto-hiding header on scrol
 - `templates/includes/header.html` - Main header with location button, search, navigation, notification bell
 - `templates/a_posts/home.html` - Home page with hero carousel and post grid
 - `templates/a_posts/post_grid_item.html` - Individual post card component
+- `templates/a_posts/post_page.html` - Post detail page with gallery, owner info, and chat button
 - `templates/a_posts/post_create.html` - Post creation form with Nominatim autocomplete
+- `templates/a_posts/chat_room.html` - Real-time chat messaging interface
+- `templates/a_posts/chat_list.html` - Post-specific inquiry list for owners
+- `templates/a_posts/chat_list_all.html` - All conversations list
 - `templates/a_posts/notifications.html` - Notifications list page
-- `a_posts/views.py` - Post views including location filtering and notifications logic
-- `a_posts/models.py` - Post, Notification, and related models
+- `a_posts/views.py` - Post views including location filtering, chat, and notifications logic
+- `a_posts/models.py` - Post, ChatRoom, Message, Notification, and related models
 - `a_posts/forms.py` - Post creation/edit forms
 - `a_posts/prefectures.py` - Japanese prefecture constants (47 prefectures)
