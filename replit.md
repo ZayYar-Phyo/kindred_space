@@ -4,6 +4,13 @@
 KindredSpace is a Django-based web application designed as a Japanese community sharing platform. Its core purpose is to facilitate the giving and requesting of items or skills among users without monetary exchange. The platform incorporates location-based functionalities using Japanese postal codes and geocoding, aiming to foster local community engagement and resource sharing. It includes robust user profiles with dynamic reputation scores, peer-to-peer rating systems, and a focus on intuitive Japanese-language UI.
 
 ## Recent Changes (January 2026)
+- Multi-image upload system (2-4 images required per post):
+  - PostImage model stores multiple images with order field for gallery sequence
+  - Post.image field now optional for backward compatibility
+  - View-based validation enforces 2-4 image requirement with Japanese error messages
+  - Swiper.js gallery carousel on post detail page (post_page.html)
+  - First-image preview with count badge on grid/list views (no JS dependency)
+  - Real-time image preview during upload in post creation form
 - Simplified post creation location system:
   - Prefecture dropdown with all 47 Japanese prefectures
   - Location autocomplete using OpenStreetMap Nominatim API (free, no API key)
