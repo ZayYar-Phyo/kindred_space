@@ -87,25 +87,9 @@
                 {% endif %}
             </div>
 
-            <!-- Current Location Button -->
-            <div class="mb-4">
-                <button type="button" class="button secondaryAction" id="use-current-location-btn">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    現在地を使用
-                </button>
-            </div>
-
             <!-- Hidden lat/lng fields to submit -->
             {{ form.latitude }}
             {{ form.longitude }}
-
-            <!-- Map -->
-            <div class="map-wrapper mb-3">
-                <div id="map"></div>
-            </div> 
 
             <!-- Privacy -->
             <label class="inline-flex items-center gap-2">
@@ -171,229 +155,18 @@
     </form>
     </div>
 
-<!-- Leaflet CSS/JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-<style>
-    .map-wrapper {
-        height: 300px;
-        width: 100%;
-        position: relative;
-        border-radius: 0.5rem;
-        overflow: hidden;
-        z-index: 1;
-    }
-    
-    #map {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        z-index: 1;
-    }
-    
-    #map .leaflet-container {
-        width: 100%;
-        height: 100%;
-        position: relative;
-        z-index: 1;
-    }
-    
-    #map .leaflet-control-zoom {
-        position: absolute !important;
-        top: 10px !important;
-        left: 10px !important;
-        z-index: 1000 !important;
-    }
-    
-    #map .leaflet-control-container {
-        position: absolute !important;
-        width: 100% !important;
-        height: 100% !important;
-        pointer-events: none !important;
-    }
-    
-    #map .leaflet-control {
-        pointer-events: auto !important;
-    }
-    
-    #map .leaflet-pane {
-        z-index: 400;
-    }
-    
-    #map .leaflet-tile-pane {
-        z-index: 200;
-    }
-    
-    #map .leaflet-overlay-pane {
-        z-index: 400;
-    }
-    
-    #map .leaflet-shadow-pane {
-        z-index: 500;
-    }
-    
-    #map .leaflet-marker-pane {
-        z-index: 600;
-    }
-    
-    #map .leaflet-tooltip-pane {
-        z-index: 650;
-    }
-    
-    #map .leaflet-popup-pane {
-        z-index: 700;
-    }
-</style>
 
 <script>
     // Initialize post_type and placeholder on page load
     document.addEventListener('DOMContentLoaded', function() {
         const postTypeField = document.getElementById('id_post_type');
         const reasonField = document.getElementById('id_reason');
-        const latInput = document.getElementById('id_latitude');
-        const lngInput = document.getElementById('id_longitude');
-        const locationInput = document.getElementById('id_display_area');
-        const prefectureSelect = document.getElementById('id_prefecture');
-        const currentLocationBtn = document.getElementById('use-current-location-btn');
         
         if (postTypeField && !postTypeField.value) {
             postTypeField.value = 'GIVE';
         }
         if (reasonField && !reasonField.placeholder) {
             reasonField.placeholder = 'なぜこれを共有しますか？';
-        }
-
-        // Leaflet Map Init (default center: 東京駅)
-        const defaultLat = latInput && latInput.value ? parseFloat(latInput.value) : 35.681236;
-        const defaultLng = lngInput && lngInput.value ? parseFloat(lngInput.value) : 139.767125;
-        
-        // Initialize map after ensuring container is ready
-        const mapContainer = document.getElementById('map');
-        if (!mapContainer) {
-            console.error('Map container not found');
-            return;
-        }
-        
-        // Ensure container has proper dimensions before map init
-        const mapWrapper = mapContainer.parentElement;
-        if (mapWrapper) {
-            mapWrapper.style.height = '300px';
-            mapWrapper.style.width = '100%';
-        }
-        
-        // Initialize map with constraints
-        const map = L.map('map', {
-            preferCanvas: false,
-            zoomControl: true,
-            maxBounds: [[20, 120], [46, 150]], // Constrain to Japan area
-            maxBoundsViscosity: 1.0
-        }).setView([defaultLat, defaultLng], 12);
-        
-        window.__leafletMap = map;
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            minZoom: 5,
-            attribution: '&copy; OpenStreetMap contributors',
-            noWrap: false
-        }).addTo(map);
-        
-        const marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
-        window.__leafletMarker = marker;
-
-        // Keep map sized correctly - call after a short delay to ensure DOM is ready
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
-        
-        map.whenReady(() => {
-            map.invalidateSize();
-        });
-        
-        // Handle window resize
-        let resizeTimer;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(() => {
-                map.invalidateSize();
-            }, 150);
-        });
-
-        // Update inputs on marker drag
-        marker.on('dragend', function(e) {
-            const pos = marker.getLatLng();
-            if (latInput) latInput.value = pos.lat.toFixed(6);
-            if (lngInput) lngInput.value = pos.lng.toFixed(6);
-            window.__reverseGeocode(pos.lat.toFixed(6), pos.lng.toFixed(6));
-        });
-
-        // Reverse Geocoding using Nominatim (OpenStreetMap)
-        window.__reverseGeocode = async function(lat, lng) {
-            try {
-                const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lng)}&accept-language=ja`;
-                const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
-                if (!res.ok) return;
-                const data = await res.json();
-                const a = data && data.address ? data.address : {};
-                
-                // Set prefecture if found
-                if (a.state && prefectureSelect) {
-                    const prefOption = Array.from(prefectureSelect.options).find(opt => opt.value === a.state);
-                    if (prefOption) {
-                        prefectureSelect.value = a.state;
-                    }
-                }
-                
-                // Build display area (city/ward/suburb)
-                const parts = [
-                    a.city || a.town || a.village || a.municipality,
-                    a.city_district || a.district || a.county || a.ward,
-                    a.suburb || a.neighbourhood || a.hamlet
-                ].filter(Boolean);
-                const display = parts.join(' ');
-                if (locationInput) locationInput.value = display || '';
-            } catch (e) {
-                console.error('Reverse geocode error:', e);
-            }
-        };
-
-        // Current Location button handler
-        if (currentLocationBtn) {
-            currentLocationBtn.addEventListener('click', function() {
-                if (navigator.geolocation) {
-                    currentLocationBtn.disabled = true;
-                    currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>取得中...';
-                    
-                    navigator.geolocation.getCurrentPosition(
-                        function(position) {
-                            const lat = position.coords.latitude.toFixed(6);
-                            const lng = position.coords.longitude.toFixed(6);
-                            
-                            if (latInput) latInput.value = lat;
-                            if (lngInput) lngInput.value = lng;
-                            
-                            if (window.__leafletMarker && window.__leafletMap) {
-                                window.__leafletMarker.setLatLng([lat, lng]);
-                                window.__leafletMap.setView([lat, lng], 15);
-                                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
-                            }
-                            
-                            window.__reverseGeocode(lat, lng);
-                            
-                            currentLocationBtn.disabled = false;
-                            currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>現在地を使用';
-                        },
-                        function(error) {
-                            alert('位置情報の取得に失敗しました。ブラウザの位置情報設定をご確認ください。');
-                            currentLocationBtn.disabled = false;
-                            currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>現在地を使用';
-                        }
-                    );
-                } else {
-                    alert('このブラウザは位置情報をサポートしていません。');
-                }
-            });
         }
     });
 
@@ -466,13 +239,6 @@
                             // Update hidden fields
                             if (latInput) latInput.value = parseFloat(lat).toFixed(6);
                             if (lngInput) lngInput.value = parseFloat(lng).toFixed(6);
-                            
-                            // Update map and marker
-                            if (window.__leafletMarker && window.__leafletMap) {
-                                window.__leafletMarker.setLatLng([lat, lng]);
-                                window.__leafletMap.setView([lat, lng], 15);
-                                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
-                            }
                             
                             // Try to extract and set prefecture
                             const parts = displayName.split(',').map(p => p.trim());
