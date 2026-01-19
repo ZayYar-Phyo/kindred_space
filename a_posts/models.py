@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import uuid
+from .prefectures import PREFECTURE_CHOICES
 
 class Post(models.Model):
     POST_TYPE_CHOICES = [
@@ -17,6 +18,7 @@ class Post(models.Model):
     image = models.ImageField(upload_to='posts/')
     post_type = models.CharField(max_length=10, choices=POST_TYPE_CHOICES, default='GIVE')
     reason = models.TextField(blank=True, help_text='Why are you giving this away? or Why do you need this item/skill?')
+    prefecture = models.CharField(max_length=50, blank=True, default='', choices=PREFECTURE_CHOICES, help_text='Prefecture/都道府県')
     latitude = models.FloatField(default=0.0)
     longitude = models.FloatField(default=0.0)
     show_general_area_only = models.BooleanField(default=False)

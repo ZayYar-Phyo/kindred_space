@@ -1,13 +1,14 @@
 from django.forms import ModelForm
 from django import forms
 from .models import Post, Review
+from .prefectures import PREFECTURE_CHOICES
 
 
 # post creation form
 class PostCreateForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['post_type', 'title', 'image', 'reason', 'body', 'tags', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
+        fields = ['post_type', 'title', 'image', 'reason', 'body', 'tags', 'prefecture', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
         labels = {
             'title': 'タイトル',
             'body': 'キャプション',
@@ -15,25 +16,29 @@ class PostCreateForm(ModelForm):
             'post_type': '',
             'reason': '',
             'image': '画像',
+            'prefecture': '都道府県',
             'latitude': '緯度',
             'longitude': '経度',
             'show_general_area_only': '大まかな地域のみ表示',
-            'display_area': '表示エリア',
+            'display_area': '市区町村・駅名など',
         }
         widgets = {
-            'post_type': forms.HiddenInput(),  # Hidden, controlled by toggle buttons
+            'post_type': forms.HiddenInput(),
             'title': forms.TextInput(attrs={'placeholder': 'タイトルを入力して下さい', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'required': True}),
             'body': forms.Textarea(attrs={'rows': 3, 'placeholder': 'このアイテムについての思いやりのメッセージを記入してください...', 'class': 'font1 text-1xl'}),
             'reason': forms.Textarea(attrs={'rows': 3, 'placeholder': 'なぜこれを提供しますか？', 'class': 'font1 text-1xl'}),
             'tags': forms.CheckboxSelectMultiple(),
-            'latitude': forms.NumberInput(attrs={'step': '0.000001', 'placeholder': '例: 35.681236', 'required': True}),
-            'longitude': forms.NumberInput(attrs={'step': '0.000001', 'placeholder': '例: 139.767125', 'required': True}),
-            'display_area': forms.TextInput(attrs={'placeholder': '例: 大阪府 大阪市 北区', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]'}),
+            'prefecture': forms.Select(attrs={'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)] h-[3.3rem]'}),
+            'latitude': forms.HiddenInput(),
+            'longitude': forms.HiddenInput(),
+            'display_area': forms.TextInput(attrs={'placeholder': '市区町村、駅名などを入力 (例: 梅田駅)', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'id': 'location-autocomplete'}),
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title'].required = True
+        self.fields['prefecture'].required = True
+        self.fields['prefecture'].empty_label = '都道府県を選択してください'
 
  
 # post edit form       

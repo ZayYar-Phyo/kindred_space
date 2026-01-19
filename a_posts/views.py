@@ -112,6 +112,7 @@ def home_view(request):
 # View to handle post creation
 @login_required
 def post_create_view(request):
+    import os
     form = PostCreateForm()
     
     if request.method == 'POST':
@@ -122,7 +123,12 @@ def post_create_view(request):
             post.save()
             form.save_m2m()
             return redirect('home')
-    return render(request, 'a_posts/post_create.html', {'form' : form})
+    
+    context = {
+        'form': form,
+        'google_maps_api_key': os.environ.get('GOOGLE_MAPS_API_KEY', ''),
+    }
+    return render(request, 'a_posts/post_create.html', context)
 
 # View to handle post deletion
 @login_required

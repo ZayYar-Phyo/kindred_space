@@ -52,34 +52,64 @@
         <!-- Location Fieldset -->
         <div class="mb-6">
             <h3 class="mb-2">アイテムの場所</h3>
-            <div class="flex gap-2 mb-3">
-                <button type="button" class="button" @click="usingCurrent = true; if (navigator.geolocation) { navigator.geolocation.getCurrentPosition(function(p){ const lat = p.coords.latitude.toFixed(6); const lng = p.coords.longitude.toFixed(6); const latInput = document.getElementById('id_latitude'); const lngInput = document.getElementById('id_longitude'); latInput.value = lat; lngInput.value = lng; if(window.__leafletMarker && window.__leafletMap){ window.__leafletMarker.setLatLng([lat, lng]); window.__leafletMap.setView([lat, lng], 15); setTimeout(function(){ window.__leafletMap.invalidateSize(); }, 50); } window.__reverseGeocode(lat, lng); }); }">現在地を使用</button>
-                <button type="button" class="button secondaryAction" @click="usingCurrent = false">手動で入力</button>
+            
+            <!-- Prefecture Dropdown -->
+            <div class="mb-4">
+                <label for="{{ form.prefecture.id_for_label }}" class="block mb-2 font-semibold">{{ form.prefecture.label }} <span class="text-red-500">*</span></label>
+                {{ form.prefecture }}
+                {% if form.prefecture.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.prefecture.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
 
-            <!-- Postal Code lookup -->
-            <div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3 mb-3">
-                <div>
-                    <label for="postal_code_input" class="block mb-2 font-semibold">郵便番号</label>
-                    <input id="postal_code_input" type="text" inputmode="numeric" pattern="\d{7}" maxlength="7" placeholder="例: 5300001" class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)] h-[3.3rem]" />
-                    <p class="text-sm text-gray-500 mt-1">ハイフンなし7桁（例: 5300001）</p>
+            <!-- Location Search with Google Places Autocomplete -->
+            <div class="mb-4" x-data="{ suggestions: [], showSuggestions: false, inputValue: '' }">
+                <label for="location-autocomplete" class="block mb-2 font-semibold">{{ form.display_area.label }}</label>
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="location-autocomplete"
+                        name="display_area"
+                        placeholder="市区町村、駅名などを入力 (例: 梅田駅)"
+                        class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]"
+                        autocomplete="off"
+                        x-model="inputValue"
+                        value="{{ form.display_area.value|default:'' }}"
+                    />
+                    <!-- Autocomplete suggestions dropdown -->
+                    <div 
+                        id="autocomplete-dropdown"
+                        class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto hidden"
+                    ></div>
                 </div>
-                <div class="flex items-center justify-end md:justify-start">
-                    <button type="button" id="postal_lookup_btn" class="button w-full md:w-auto">住所を検索</button>
-                </div>
+                <p class="text-sm text-gray-500 mt-1">Google Placesを使って場所を検索します</p>
+                {% if form.display_area.errors %}
+                    <ul class="errorlist">
+                        {% for error in form.display_area.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <!-- Current Location Button -->
+            <div class="mb-4">
+                <button type="button" class="button secondaryAction" id="use-current-location-btn">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    現在地を使用
+                </button>
             </div>
 
             <!-- Hidden lat/lng fields to submit -->
-            <div class="hidden">
-                {{ form.latitude }}
-                {{ form.longitude }}
-            </div>
-
-            <!-- Display Area (Read-only) -->
-            <div class="mb-3">
-                <label for="{{ form.display_area.id_for_label }}" class="block mb-2 font-semibold">{{ form.display_area.label }}</label>
-                {{ form.display_area }}
-            </div>
+            {{ form.latitude }}
+            {{ form.longitude }}
 
             <!-- Map -->
             <div class="map-wrapper mb-3">
@@ -232,9 +262,10 @@
         const reasonField = document.getElementById('id_reason');
         const latInput = document.getElementById('id_latitude');
         const lngInput = document.getElementById('id_longitude');
-        const displayAreaInput = document.getElementById('id_display_area');
-        const postalInput = document.getElementById('postal_code_input');
-        const postalBtn = document.getElementById('postal_lookup_btn');
+        const locationInput = document.getElementById('location-autocomplete');
+        const prefectureSelect = document.getElementById('id_prefecture');
+        const currentLocationBtn = document.getElementById('use-current-location-btn');
+        
         if (postTypeField && !postTypeField.value) {
             postTypeField.value = 'GIVE';
         }
@@ -303,27 +334,8 @@
             const pos = marker.getLatLng();
             if (latInput) latInput.value = pos.lat.toFixed(6);
             if (lngInput) lngInput.value = pos.lng.toFixed(6);
-            if (latInput && lngInput) {
-                window.__reverseGeocode(latInput.value, lngInput.value);
-            }
+            window.__reverseGeocode(pos.lat.toFixed(6), pos.lng.toFixed(6));
         });
-
-        // Update marker when manual inputs change
-        function tryUpdateMarker() {
-            const lat = parseFloat(latInput.value);
-            const lng = parseFloat(lngInput.value);
-            if (!isNaN(lat) && !isNaN(lng)) {
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 14);
-                // Ensure map maintains proper size
-                setTimeout(() => {
-                    map.invalidateSize();
-                }, 50);
-                window.__reverseGeocode(lat.toFixed(6), lng.toFixed(6));
-            }
-        }
-        if (latInput) latInput.addEventListener('change', tryUpdateMarker);
-        if (lngInput) lngInput.addEventListener('change', tryUpdateMarker);
 
         // Reverse Geocoding using Nominatim (OpenStreetMap)
         window.__reverseGeocode = async function(lat, lng) {
@@ -333,104 +345,135 @@
                 if (!res.ok) return;
                 const data = await res.json();
                 const a = data && data.address ? data.address : {};
-                // Prefer Japanese-like ordering: prefecture city ward suburb
+                
+                // Set prefecture if found
+                if (a.state && prefectureSelect) {
+                    const prefOption = Array.from(prefectureSelect.options).find(opt => opt.value === a.state);
+                    if (prefOption) {
+                        prefectureSelect.value = a.state;
+                    }
+                }
+                
+                // Build display area (city/ward/suburb)
                 const parts = [
-                    a.state,              // 都道府県
-                    a.city || a.town || a.village || a.municipality, // 市/町/村
-                    a.city_district || a.district || a.county || a.ward, // 区/郡
-                    a.suburb || a.neighbourhood || a.hamlet // 町名/近隣
+                    a.city || a.town || a.village || a.municipality,
+                    a.city_district || a.district || a.county || a.ward,
+                    a.suburb || a.neighbourhood || a.hamlet
                 ].filter(Boolean);
                 const display = parts.join(' ');
-                if (displayAreaInput) displayAreaInput.value = display || (data.display_name || '');
+                if (locationInput) locationInput.value = display || '';
             } catch (e) {
-                // Fail silently; keep coordinates
+                console.error('Reverse geocode error:', e);
             }
         };
 
-        // Initial reverse geocode for defaults
-        if (latInput && lngInput && latInput.value && lngInput.value) {
-            window.__reverseGeocode(latInput.value, lngInput.value);
-        } else {
-            window.__reverseGeocode(defaultLat, defaultLng);
+        // Current Location button handler
+        if (currentLocationBtn) {
+            currentLocationBtn.addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    currentLocationBtn.disabled = true;
+                    currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="4" class="opacity-25"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>取得中...';
+                    
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const lat = position.coords.latitude.toFixed(6);
+                            const lng = position.coords.longitude.toFixed(6);
+                            
+                            if (latInput) latInput.value = lat;
+                            if (lngInput) lngInput.value = lng;
+                            
+                            if (window.__leafletMarker && window.__leafletMap) {
+                                window.__leafletMarker.setLatLng([lat, lng]);
+                                window.__leafletMap.setView([lat, lng], 15);
+                                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
+                            }
+                            
+                            window.__reverseGeocode(lat, lng);
+                            
+                            currentLocationBtn.disabled = false;
+                            currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>現在地を使用';
+                        },
+                        function(error) {
+                            alert('位置情報の取得に失敗しました。ブラウザの位置情報設定をご確認ください。');
+                            currentLocationBtn.disabled = false;
+                            currentLocationBtn.innerHTML = '<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>現在地を使用';
+                        }
+                    );
+                } else {
+                    alert('このブラウザは位置情報をサポートしていません。');
+                }
+            });
         }
+    });
 
-        // Postal code lookup via backend endpoint
-        async function lookupPostal() {
-            const raw = (postalInput?.value || '').replace(/[^0-9]/g, '');
-            if (!raw || raw.length !== 7) {
-                alert('郵便番号は7桁の数字で入力してください。');
+    // Google Places Autocomplete initialization
+    function initGooglePlacesAutocomplete() {
+        const input = document.getElementById('location-autocomplete');
+        const dropdown = document.getElementById('autocomplete-dropdown');
+        const latInput = document.getElementById('id_latitude');
+        const lngInput = document.getElementById('id_longitude');
+        
+        if (!input || !google || !google.maps || !google.maps.places) {
+            console.log('Google Places API not loaded or input not found');
+            return;
+        }
+        
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            componentRestrictions: { country: 'jp' },
+            fields: ['formatted_address', 'geometry', 'name', 'address_components'],
+            types: ['geocode', 'establishment']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            
+            if (!place.geometry || !place.geometry.location) {
+                console.error('No geometry for selected place');
                 return;
             }
             
-            // Disable button during request
-            if (postalBtn) {
-                postalBtn.disabled = true;
-                postalBtn.textContent = '検索中...';
+            const lat = place.geometry.location.lat().toFixed(6);
+            const lng = place.geometry.location.lng().toFixed(6);
+            
+            // Update hidden lat/lng fields
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+            
+            // Update map and marker
+            if (window.__leafletMarker && window.__leafletMap) {
+                window.__leafletMarker.setLatLng([lat, lng]);
+                window.__leafletMap.setView([lat, lng], 15);
+                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
             }
             
-            try {
-                const res = await fetch(`/api/geocode?postal_code=${encodeURIComponent(raw)}`, { 
-                    headers: { 'Accept': 'application/json' } 
-                });
-                
-                const data = await res.json();
-                
-                // Check if response indicates success
-                if (data.success === true && typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-                    const lat = data.latitude.toFixed(6);
-                    const lng = data.longitude.toFixed(6);
-                    
-                    // Update hidden latitude/longitude fields
-                    if (latInput) latInput.value = lat;
-                    if (lngInput) lngInput.value = lng;
-                    
-                    // Update map and marker
-                    if (window.__leafletMarker && window.__leafletMap) {
-                        window.__leafletMarker.setLatLng([lat, lng]);
-                        window.__leafletMap.setView([lat, lng], 15);
-                        // Ensure map size is maintained after update
-                        setTimeout(() => {
-                            window.__leafletMap.invalidateSize();
-                        }, 50);
+            // Try to set prefecture from address components
+            if (place.address_components) {
+                const prefectureSelect = document.getElementById('id_prefecture');
+                for (const component of place.address_components) {
+                    if (component.types.includes('administrative_area_level_1')) {
+                        const prefName = component.long_name;
+                        if (prefectureSelect) {
+                            const prefOption = Array.from(prefectureSelect.options).find(opt => opt.value === prefName);
+                            if (prefOption) {
+                                prefectureSelect.value = prefName;
+                            }
+                        }
+                        break;
                     }
-                    
-                    // Update display area field
-                    if (data.display_area && displayAreaInput) {
-                        displayAreaInput.value = data.display_area;
-                    } else if (displayAreaInput) {
-                        // Fallback: try reverse geocoding if display_area not provided
-                        window.__reverseGeocode(lat, lng);
-                    }
-                } else {
-                    // Handle error response
-                    const errorMsg = data.error || '住所の検索に失敗しました。郵便番号をご確認ください。';
-                    alert(errorMsg);
-                }
-            } catch (e) {
-                alert('ネットワークエラーが発生しました。インターネット接続をご確認ください。');
-                console.error('Postal code lookup error:', e);
-            } finally {
-                // Re-enable button
-                if (postalBtn) {
-                    postalBtn.disabled = false;
-                    postalBtn.textContent = '住所を検索';
                 }
             }
-        }
-        
-        if (postalBtn) {
-            postalBtn.addEventListener('click', lookupPostal);
-            // Also allow Enter key in postal code input
-            if (postalInput) {
-                postalInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        lookupPostal();
-                    }
-                });
+            
+            // Update the input with cleaned name (without full address)
+            if (place.name && place.name !== place.formatted_address) {
+                input.value = place.name;
             }
-        }
-    });
+        });
+    }
+</script>
+
+<!-- Google Maps API with Places Library -->
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initGooglePlacesAutocomplete&language=ja">
 </script>
 
 {% endblock %}
