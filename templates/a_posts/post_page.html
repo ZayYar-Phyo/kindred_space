@@ -2,7 +2,115 @@
 
 {% block content %}
 
-{% include 'a_posts/post.html' %}
+<!-- Swiper CSS for gallery -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+<style>
+.post-gallery-swiper {
+    width: 100%;
+    aspect-ratio: 1/1;
+}
+.post-gallery-swiper .swiper-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.post-gallery-swiper .swiper-button-next,
+.post-gallery-swiper .swiper-button-prev {
+    color: white;
+    background: rgba(0,0,0,0.3);
+    padding: 24px 16px;
+    border-radius: 8px;
+}
+.post-gallery-swiper .swiper-button-next:after,
+.post-gallery-swiper .swiper-button-prev:after {
+    font-size: 18px;
+}
+.post-gallery-swiper .swiper-pagination-bullet-active {
+    background: #4CAF50;
+}
+</style>
+
+<!-- Post Detail with Gallery -->
+<article class="card">
+    <div class="flex items-center justify-between px-4 h-14">
+        <h3 class="text-start leading-5 mr-1">{{ post.title }}</h3>
+        {% if post.post_type %}
+        <div class="text-sm">
+            {% if post.post_type == 'GIVE' %}
+            <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">提供</span>
+            {% else %}
+            <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">依頼</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    <figure>
+        {% if post.images.exists %}
+        <!-- Image Gallery with Swiper -->
+        <div class="swiper post-gallery-swiper relative">
+            <div class="swiper-wrapper">
+                {% for img in post.images.all %}
+                <div class="swiper-slide">
+                    <img class="w-full aspect-square object-cover" src="{{ img.image.url }}" alt="{{ post.title }} - Image {{ forloop.counter }}">
+                </div>
+                {% endfor %}
+            </div>
+            {% if post.images.count > 1 %}
+            <div class="swiper-pagination"></div>
+            <div class="swiper-button-prev"></div>
+            <div class="swiper-button-next"></div>
+            {% endif %}
+        </div>
+        {% elif post.image %}
+        <img class="w-full" src="{{ post.image.url }}">
+        {% elif post.url %}
+        <img class="w-full" src="{{ post.url }}">
+        {% else %}
+        <div class="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">No image</div>
+        {% endif %}
+    </figure>
+    <div class="p-4 pb-2">
+        {% load profile_tags %}
+        {% if post.user %}
+        {% with profile=post.user|get_profile %}
+        <a class="flex items-center gap-1 mb-4" href="{% url 'profile' post.user.username %}">
+            <img class="w-8 h-8 object-cover rounded-full" src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ post.user.username }}&background=4CAF50&color=fff{% endif %}">
+            <span class="font-bold hover:underline">{{ post.user.username }}</span>
+            <span class="text-sm text-gray-400">@{{ post.user.username }}</span>
+        </a>
+        {% endwith %}
+        {% else %}
+        <a class="flex items-center gap-1 mb-4" href="#">
+            <img class="w-8 h-8 object-cover rounded-full" src="https://ui-avatars.com/api/?name=Anonymous&background=A9A9A9&color=fff">
+            <span class="font-bold">匿名ユーザー</span>
+            <span class="text-sm text-gray-400">@anonymous</span>
+        </a>
+        {% endif %}
+        <p class="text-2xl mb-10 px-4 font1">{{ post.body }}</p>
+        <div class="flex items-center gap-2 text-sm mb-5 flex-wrap">
+            {% for tag in post.tags.all %}
+            <a href="" class="bg-gray-200 rounded-full px-3 py-1 hover:bg-gray-800 hover:text-white">{{ tag }}</a>
+            {% endfor %}
+        </div>
+        <div class="flex items-center justify-between text-sm px-2">
+            <a class="font-bold hover:underline" href="{% url 'post' post.id %}">
+                Comments
+                <span class="font-light text-gray-500 ml-1">3</span>
+            </a>
+            <div class="flex items-center gap-4 [&>a:hover]:underline">
+                <div class="flex items-center gap-1">
+                    <img class="w-5 -mt-1" src="https://img.icons8.com/small/24/000000/fire-heart.png">
+                    1
+                </div>
+                <a href="">Like</a>
+                {% if user.is_authenticated and post.user == user %}
+                <a href="{% url 'post-edit' post.id %}">Edit</a>
+                <a href="{% url 'post-delete' post.id %}">Delete</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</article>
 
 <div class="card !pb-0 -mt-3">
     <form method="POST" class="flex items-center p-4" autocomplete="off">
@@ -84,5 +192,25 @@
 
     </div>
 </div>
+
+<!-- Swiper JS -->
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const gallerySwiper = new Swiper('.post-gallery-swiper', {
+        slidesPerView: 1,
+        spaceBetween: 0,
+        loop: true,
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+    });
+});
+</script>
 
 {% endblock %}

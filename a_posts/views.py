@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import Post, Tag, UserProfile, Review, Follow, Notification
+from .models import Post, PostImage, Tag, UserProfile, Review, Follow, Notification
 from .forms import *
 from bs4 import BeautifulSoup
 import requests
@@ -113,17 +113,33 @@ def home_view(request):
 @login_required
 def post_create_view(request):
     form = PostCreateForm()
+    image_error = None
     
     if request.method == 'POST':
         form = PostCreateForm(request.POST, request.FILES)
-        if form.is_valid():
+        images = request.FILES.getlist('images')
+        
+        if len(images) < 2:
+            image_error = '2枚以上の画像をアップロードしてください。'
+        elif len(images) > 4:
+            image_error = '画像は最大4枚までです。'
+        
+        if form.is_valid() and not image_error:
             post = form.save(commit=False)
             post.user = request.user
             post.save()
             form.save_m2m()
+            
+            for order, image_file in enumerate(images):
+                PostImage.objects.create(
+                    post=post,
+                    image=image_file,
+                    order=order
+                )
+            
             return redirect('home')
     
-    return render(request, 'a_posts/post_create.html', {'form': form})
+    return render(request, 'a_posts/post_create.html', {'form': form, 'image_error': image_error})
 
 # View to handle post deletion
 @login_required

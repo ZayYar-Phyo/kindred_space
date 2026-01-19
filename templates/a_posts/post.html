@@ -12,7 +12,20 @@
                 {% endif %}
             </div>
             <figure>
-                {% if post.image %}
+                {% if post.images.exists %}
+                <!-- Show first image with gallery indicator -->
+                {% with first_img=post.images.first %}
+                <a href="{% url 'post' post.id %}" class="block relative">
+                    <img class="w-full aspect-square object-cover" src="{{ first_img.image.url }}" alt="{{ post.title }}">
+                    {% if post.images.count > 1 %}
+                    <div class="absolute bottom-3 right-3 bg-black bg-opacity-60 text-white text-sm px-3 py-1 rounded-full flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>
+                        {{ post.images.count }}枚
+                    </div>
+                    {% endif %}
+                </a>
+                {% endwith %}
+                {% elif post.image %}
                 <a href="{% url 'post' post.id %}"><img class="w-full" src="{{ post.image.url }}"></a>
                 {% elif post.url %}
                 <a href="{% url 'post' post.id %}"><img class="w-full" src="{{ post.url }}"></a>

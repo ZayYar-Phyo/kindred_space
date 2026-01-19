@@ -15,7 +15,7 @@ class Post(models.Model):
     title = models.CharField(max_length=500, blank=True, null=True)
     artist = models.CharField(max_length=500, null=True, blank=True)
     url = models.CharField(max_length=500, null=True, blank=True)
-    image = models.ImageField(upload_to='posts/')
+    image = models.ImageField(upload_to='posts/', blank=True, null=True)
     post_type = models.CharField(max_length=10, choices=POST_TYPE_CHOICES, default='GIVE')
     reason = models.TextField(blank=True, help_text='Why are you giving this away? or Why do you need this item/skill?')
     prefecture = models.CharField(max_length=50, blank=True, default='', choices=PREFECTURE_CHOICES, help_text='Prefecture/都道府県')
@@ -34,6 +34,19 @@ class Post(models.Model):
     class Meta:
         ordering = ['-created_at']  # Orders posts by creation date in descending order latest first
         
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='posts/')
+    order = models.PositiveIntegerField(default=0, help_text='Display order (0 = first)')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image {self.order + 1} for {self.post.title}"
+
+    class Meta:
+        ordering = ['order', 'created_at']
+
+
 class Tag(models.Model):
     name = models.CharField(max_length=20)
     slug = models.SlugField(max_length=20, unique=True)

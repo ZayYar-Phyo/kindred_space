@@ -1,21 +1,39 @@
 from django.forms import ModelForm
 from django import forms
-from .models import Post, Review
+from django.core.exceptions import ValidationError
+from .models import Post, Review, PostImage
 from .prefectures import PREFECTURE_CHOICES
+
+
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
 
 
 # post creation form
 class PostCreateForm(ModelForm):
     class Meta:
         model = Post
-        fields = ['post_type', 'title', 'image', 'reason', 'body', 'tags', 'prefecture', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
+        fields = ['post_type', 'title', 'reason', 'body', 'tags', 'prefecture', 'latitude', 'longitude', 'show_general_area_only', 'display_area']
         labels = {
             'title': 'タイトル',
             'body': 'キャプション',
             'tags': 'カテゴリー',
             'post_type': '',
             'reason': '',
-            'image': '画像',
             'prefecture': '都道府県',
             'latitude': '緯度',
             'longitude': '経度',
@@ -39,6 +57,7 @@ class PostCreateForm(ModelForm):
         self.fields['title'].required = True
         self.fields['prefecture'].required = True
         self.fields['prefecture'].empty_label = '都道府県を選択してください'
+    
 
  
 # post edit form       

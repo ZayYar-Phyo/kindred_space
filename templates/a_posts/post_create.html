@@ -98,17 +98,20 @@
             </label>
         </div>
 
-        <!-- Image Field -->
+        <!-- Images Field (2-4 images) -->
         <div class="mb-4">
-            <label for="{{ form.image.id_for_label }}" class="block mb-2 font-semibold">{{ form.image.label }}</label>
-            {{ form.image }}
-            {% if form.image.errors %}
+            <label for="id_images" class="block mb-2 font-semibold">画像（2〜4枚）<span class="text-red-500">*</span></label>
+            <div class="relative">
+                <input type="file" name="images" id="id_images" accept="image/*" multiple required
+                       class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)] border border-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white file:cursor-pointer">
+            </div>
+            <p class="text-sm text-gray-500 mt-1">2〜4枚の画像を選択してください</p>
+            {% if image_error %}
                 <ul class="errorlist">
-                    {% for error in form.image.errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
+                    <li>{{ image_error }}</li>
                 </ul>
             {% endif %}
+            <div id="image-preview" class="mt-3 grid grid-cols-4 gap-2"></div>
         </div>
 
         <!-- Dynamic Reason Field -->
@@ -167,6 +170,35 @@
         }
         if (reasonField && !reasonField.placeholder) {
             reasonField.placeholder = 'なぜこれを共有しますか？';
+        }
+        
+        // Image preview
+        const imageInput = document.getElementById('id_images');
+        const previewContainer = document.getElementById('image-preview');
+        
+        if (imageInput && previewContainer) {
+            imageInput.addEventListener('change', function(e) {
+                previewContainer.innerHTML = '';
+                const files = e.target.files;
+                
+                if (files.length < 2 || files.length > 4) {
+                    previewContainer.innerHTML = `<p class="col-span-4 text-red-500 text-sm">${files.length < 2 ? '2枚以上の画像を選択してください' : '画像は最大4枚までです'}</p>`;
+                }
+                
+                Array.from(files).slice(0, 4).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'relative aspect-square bg-gray-100 rounded-lg overflow-hidden';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="w-full h-full object-cover" alt="Preview ${index + 1}">
+                            <span class="absolute top-1 left-1 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded">${index + 1}</span>
+                        `;
+                        previewContainer.appendChild(div);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
         }
     });
 
