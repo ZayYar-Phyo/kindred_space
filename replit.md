@@ -4,6 +4,11 @@
 KindredSpace is a Django-based web application designed as a Japanese community sharing platform. Its core purpose is to facilitate the giving and requesting of items or skills among users without monetary exchange. The platform incorporates location-based functionalities using Japanese postal codes and geocoding, aiming to foster local community engagement and resource sharing. It includes robust user profiles with dynamic reputation scores, peer-to-peer rating systems, and a focus on intuitive Japanese-language UI.
 
 ## Recent Changes (January 2026)
+- Upgraded post creation location system with free-tier services:
+  - Prefecture dropdown with all 47 Japanese prefectures
+  - Location autocomplete using OpenStreetMap Nominatim API (free, no API key)
+  - Debounced search with Japan country restriction
+  - Automatic prefecture selection from address components
 - Added real-time notification system with bell icon in header
 - Notification model with automatic triggers for follow and review events
 - Bell icon shows unread count badge (polls every 30 seconds)
@@ -92,8 +97,9 @@ It includes responsive design for all components, an auto-hiding header on scrol
 - `templates/includes/header.html` - Main header with location button, search, navigation, notification bell
 - `templates/a_posts/home.html` - Home page with hero carousel and post grid
 - `templates/a_posts/post_grid_item.html` - Individual post card component
-- `templates/a_posts/post_create.html` - Post creation form
+- `templates/a_posts/post_create.html` - Post creation form with Nominatim autocomplete
 - `templates/a_posts/notifications.html` - Notifications list page
 - `a_posts/views.py` - Post views including location filtering and notifications logic
 - `a_posts/models.py` - Post, Notification, and related models
 - `a_posts/forms.py` - Post creation/edit forms
+- `a_posts/prefectures.py` - Japanese prefecture constants (47 prefectures)
