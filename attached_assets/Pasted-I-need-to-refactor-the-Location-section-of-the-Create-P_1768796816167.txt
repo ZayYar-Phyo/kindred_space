@@ -1,0 +1,40 @@
+I need to refactor the "Location" section of the "Create Post" form in my project (KindredSpace). Currently, it uses a manual input or postal code. I want to replace this with a more structured and user-friendly approach using a "Prefecture Dropdown" and "Google Places Autocomplete".
+
+Here are the specific requirements and steps I want you to implement:
+
+### 1. Create a Prefectures Constant
+* Create a new file `src/constants/prefectures.js` (or `ts`).
+* Export a constant array named `PREFECTURES` containing all 47 Japanese prefectures.
+* Each object should have `id`, `name` (Kanji), and `en` (English). Example: `{ id: 1, name: "北海道", en: "Hokkaido" }`.
+
+### 2. Install Dependencies
+* Please check if I have `use-places-autocomplete` and `@react-google-maps/api` (or a script loader). If not, add them to the package.json or instruct me to install them.
+
+### 3. Create a Location Search Component
+* Create a new component named `LocationSearchInput`.
+* **Functionality:**
+    * It should accept a prop `onLocationSelect` that returns the selected address string (or object).
+    * It should use `use-places-autocomplete` to fetch suggestions from Google Places API.
+    * **Constraints:**
+        * Limit the search to Japan (`componentRestrictions: { country: "jp" }`).
+        * Display suggestions in a dropdown list below the input field.
+        * When a user clicks a suggestion, update the input value and trigger `onLocationSelect`.
+* **UI:**
+    * Use a clean input field with a placeholder "市区町村、駅名などを入力 (例: 梅田駅)".
+    * Show the suggestions list with a white background, shadow, and z-index to overlay other content.
+
+### 4. Update the Main "Post Create Form"
+* Locate the main form component (likely `CreatePost.jsx` or similar).
+* **Remove:** The old "Postal Code" input and the manual "Display Area" input fields.
+* **Add:**
+    1.  **Prefecture Dropdown:** A `<select>` element that maps through the `PREFECTURES` constant. Bind this to the form state (e.g., `prefecture`).
+    2.  **City/Station Input:** Render the new `LocationSearchInput` component below the dropdown. Bind the result to the form state (e.g., `detailed_location`).
+* **Validation:** Ensure the user cannot submit the form without selecting a prefecture and a detailed location.
+
+### 5. Google Maps Script Loading
+* Ensure the Google Maps API script is loaded properly in the application (e.g., in `_app.js`, `index.html`, or using `useLoadScript` hook).
+* Use an environment variable `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (or `VITE_...` depending on the framework) for the API key.
+
+**Tech Stack:** React, [Tailwind CSS / CSS Modules], JavaScript/TypeScript.
+
+Please analyze the current code and apply these changes step-by-step.
