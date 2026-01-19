@@ -1,13 +1,14 @@
 {% extends "layouts/a.html" %}
+{% load profile_tags %}
 
 {% block content %}
 
-<!-- Swiper CSS for gallery -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <style>
 .post-gallery-swiper {
     width: 100%;
     aspect-ratio: 1/1;
+    border-radius: 0;
 }
 .post-gallery-swiper .swiper-slide img {
     width: 100%;
@@ -17,7 +18,7 @@
 .post-gallery-swiper .swiper-button-next,
 .post-gallery-swiper .swiper-button-prev {
     color: white;
-    background: rgba(0,0,0,0.3);
+    background: rgba(0,0,0,0.4);
     padding: 24px 16px;
     border-radius: 8px;
 }
@@ -28,30 +29,19 @@
 .post-gallery-swiper .swiper-pagination-bullet-active {
     background: #4CAF50;
 }
+.star-filled { color: #FFD700; }
+.star-empty { color: #E0E0E0; }
 </style>
 
-<!-- Post Detail with Gallery -->
-<article class="card">
-    <div class="flex items-center justify-between px-4 h-14">
-        <h3 class="text-start leading-5 mr-1">{{ post.title }}</h3>
-        {% if post.post_type %}
-        <div class="text-sm">
-            {% if post.post_type == 'GIVE' %}
-            <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">提供</span>
-            {% else %}
-            <span class="bg-primary-soft text-primary-dark px-3 py-1 rounded-full font-semibold">依頼</span>
-            {% endif %}
-        </div>
-        {% endif %}
-    </div>
-    <figure>
+<div class="max-w-2xl mx-auto bg-white min-h-screen">
+    
+    <figure class="relative">
         {% if post.images.exists %}
-        <!-- Image Gallery with Swiper -->
         <div class="swiper post-gallery-swiper relative">
             <div class="swiper-wrapper">
                 {% for img in post.images.all %}
                 <div class="swiper-slide">
-                    <img class="w-full aspect-square object-cover" src="{{ img.image.url }}" alt="{{ post.title }} - Image {{ forloop.counter }}">
+                    <img class="w-full aspect-square object-cover" src="{{ img.image.url }}" alt="{{ post.title }} - 画像 {{ forloop.counter }}">
                 </div>
                 {% endfor %}
             </div>
@@ -59,141 +49,163 @@
             <div class="swiper-pagination"></div>
             <div class="swiper-button-prev"></div>
             <div class="swiper-button-next"></div>
+            <div class="absolute top-3 right-3 bg-black/60 text-white text-xs px-2 py-1 rounded-full z-10">
+                {{ post.images.count }}枚
+            </div>
             {% endif %}
         </div>
         {% elif post.image %}
-        <img class="w-full" src="{{ post.image.url }}">
+        <img class="w-full aspect-square object-cover" src="{{ post.image.url }}" alt="{{ post.title }}">
         {% elif post.url %}
-        <img class="w-full" src="{{ post.url }}">
+        <img class="w-full aspect-square object-cover" src="{{ post.url }}" alt="{{ post.title }}">
         {% else %}
-        <div class="w-full h-64 bg-gray-200 flex items-center justify-center text-gray-500">No image</div>
+        <div class="w-full aspect-square bg-gray-200 flex items-center justify-center text-gray-500">
+            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        {% endif %}
+        
+        {% if post.post_type %}
+        <div class="absolute top-3 left-3 z-10">
+            {% if post.post_type == 'GIVE' %}
+            <span class="bg-primary text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-md">提供</span>
+            {% else %}
+            <span class="bg-orange-500 text-white px-3 py-1.5 rounded-full text-sm font-semibold shadow-md">依頼</span>
+            {% endif %}
+        </div>
         {% endif %}
     </figure>
-    <div class="p-4 pb-2">
-        {% load profile_tags %}
-        {% if post.user %}
-        {% with profile=post.user|get_profile %}
-        <a class="flex items-center gap-1 mb-4" href="{% url 'profile' post.user.username %}">
-            <img class="w-8 h-8 object-cover rounded-full" src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ post.user.username }}&background=4CAF50&color=fff{% endif %}">
-            <span class="font-bold hover:underline">{{ post.user.username }}</span>
-            <span class="text-sm text-gray-400">@{{ post.user.username }}</span>
-        </a>
-        {% endwith %}
-        {% else %}
-        <a class="flex items-center gap-1 mb-4" href="#">
-            <img class="w-8 h-8 object-cover rounded-full" src="https://ui-avatars.com/api/?name=Anonymous&background=A9A9A9&color=fff">
-            <span class="font-bold">匿名ユーザー</span>
-            <span class="text-sm text-gray-400">@anonymous</span>
-        </a>
-        {% endif %}
-        <p class="text-2xl mb-10 px-4 font1">{{ post.body }}</p>
-        <div class="flex items-center gap-2 text-sm mb-5 flex-wrap">
-            {% for tag in post.tags.all %}
-            <a href="" class="bg-gray-200 rounded-full px-3 py-1 hover:bg-gray-800 hover:text-white">{{ tag }}</a>
-            {% endfor %}
-        </div>
-        <div class="flex items-center justify-between text-sm px-2">
-            <a class="font-bold hover:underline" href="{% url 'post' post.id %}">
-                Comments
-                <span class="font-light text-gray-500 ml-1">3</span>
+
+    <div class="p-4">
+        <h1 class="text-xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
+        
+        <div class="flex items-center justify-between py-3 border-b border-gray-100">
+            {% if post.user %}
+            {% with profile=post.user|get_profile %}
+            <a href="{% url 'profile' post.user.username %}" class="flex items-center gap-3 group">
+                <img class="w-12 h-12 object-cover rounded-full border-2 border-gray-100" 
+                     src="{% if profile and profile.profile_picture %}{{ profile.profile_picture.url }}{% else %}https://ui-avatars.com/api/?name={{ post.user.username }}&background=4CAF50&color=fff{% endif %}"
+                     alt="{{ post.user.username }}">
+                <div>
+                    <div class="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                        {{ post.user.username }}
+                    </div>
+                    <div class="flex items-center gap-1 text-sm">
+                        {% with score=profile.reputation_score|default:5.0 %}
+                        <span class="flex items-center">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= score|floatformat:0|add:0 %}
+                                <svg class="w-4 h-4 star-filled" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                {% else %}
+                                <svg class="w-4 h-4 star-empty" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                </svg>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="text-gray-500 ml-1">{{ score }}</span>
+                        {% endwith %}
+                    </div>
+                </div>
             </a>
-            <div class="flex items-center gap-4 [&>a:hover]:underline">
-                <div class="flex items-center gap-1">
-                    <img class="w-5 -mt-1" src="https://img.icons8.com/small/24/000000/fire-heart.png">
-                    1
+            {% endwith %}
+            {% else %}
+            <div class="flex items-center gap-3">
+                <img class="w-12 h-12 object-cover rounded-full border-2 border-gray-100" 
+                     src="https://ui-avatars.com/api/?name=Anonymous&background=A9A9A9&color=fff"
+                     alt="匿名ユーザー">
+                <div>
+                    <div class="font-semibold text-gray-900">匿名ユーザー</div>
+                    <div class="flex items-center gap-1 text-sm text-gray-400">評価なし</div>
                 </div>
-                <a href="">Like</a>
-                {% if user.is_authenticated and post.user == user %}
-                <a href="{% url 'post-edit' post.id %}">Edit</a>
-                <a href="{% url 'post-delete' post.id %}">Delete</a>
-                {% endif %}
             </div>
+            {% endif %}
+            
+            {% if user.is_authenticated and post.user != user %}
+            <a href="{% url 'chat_room' post.id %}" 
+               class="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full font-semibold transition-colors shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                チャット
+            </a>
+            {% elif user.is_authenticated and post.user == user %}
+            <a href="{% url 'chat_room' post.id %}" 
+               class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-5 py-2.5 rounded-full font-semibold transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                お問い合わせ
+            </a>
+            {% elif not user.is_authenticated %}
+            <a href="{% url 'login' %}?next={{ request.path }}" 
+               class="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full font-semibold transition-colors shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                </svg>
+                チャット
+            </a>
+            {% endif %}
         </div>
-    </div>
-</article>
 
-<div class="card !pb-0 -mt-3">
-    <form method="POST" class="flex items-center p-4" autocomplete="off">
-        <input type="text" name="comment" placeholder="Add comment ..." maxlength="150">
-        <button @click="open = false" class="block ml-2" type="submit">Submit</button>
-    </form>
-</div>
-
-<div class="mb-20">
-    <div id="tabs" class="ml-4 flex gap-1 mb-4">
-        <a class="tab selected">Newest First</a> 
-        <a class="tab">Top Comments</a>
-    </div>
-
-    <div id="tab-contents">
-
-        <comment class="card p-4 !mb-4">
-            <div class="flex justify-between items-center"> 
-                <a class="flex items-center gap-1 mb-2" href="">
-                    <img class="w-8 h-8 object-cover rounded-full" src="https://img.icons8.com/small/96/A9A9A9/happy.png"> 
-                    <span class="font-bold hover:underline">Bart</span>
-                    <span class="text-sm font-normal text-gray-400">@bartsimpson</span>
-                </a>
+        <div class="py-4 border-b border-gray-100">
+            <div class="flex items-center gap-2 text-gray-600 mb-3">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+                <span class="text-sm">
+                    {% if post.prefecture %}{{ post.get_prefecture_display }}{% endif %}
+                    {% if post.display_area %} {{ post.display_area }}{% endif %}
+                    {% if not post.prefecture and not post.display_area %}場所未設定{% endif %}
+                </span>
             </div>
-            <p class="text-xl px-2">
-                This is a comment from Bart
-            </p>
-            <div x-data="{ repliesOpen: false }" class="flex items-center justify-between flex-wrap text-sm px-2">
-                <a @click="repliesOpen = !repliesOpen" class="font-bold hover:underline cursor-pointer">
-                    <div class="inline-block" x-bind:class="repliesOpen && 'rotate-90 duration-300'">
-                        <svg transform ="rotate(90)" width="9" height="9" viewBox="0 0 25 25">
-                            <path d="M24 22h-24l12-20z"/>
-                        </svg>
-                    </div>
-                    Replies
-                    <span class="font-light text-gray-500 ml-1">1</span>
-                </a>
-                <div class="flex items-center gap-4 [&>a:hover]:underline">
-                    <div class="flex items-center gap-1">
-                        <img class="w-5 -mt-1" src="https://img.icons8.com/small/24/000000/fire-heart.png">
-                        1
-                    </div>
-                    <a href="">Like</a>
-                    <a href="">Delete</a>
-                </div>
+            
+            {% if post.tags.exists %}
+            <div class="flex items-center gap-2 flex-wrap">
+                {% for tag in post.tags.all %}
+                <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
 
-                <div x-show="repliesOpen" x-cloak class="basis-full mt-3 pl-8 grid grid-cols-1">
+        <div class="py-4">
+            <h2 class="font-semibold text-gray-900 mb-2">商品説明</h2>
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ post.body }}</p>
+        </div>
 
-                    <reply class="flex items-end justify-between py-4 border-t">
-                        <div class="flex">
-                            <a href="">
-                                <img class="w-8 h-8 object-cover rounded-full mr-2" src="https://img.icons8.com/small/96/A9A9A9/happy.png">
-                            </a>
-                            <div class="w-fit">
-                                <a class="block" href="">
-                                    <span class="font-bold hover:underline">Homer</span>
-                                    <span class="text-sm text-gray-400">@homersimpson</span>
-                                </a>
-                                <div class="mr-3">This is a reply from Homer</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 [&>a:hover]:underline">
-                            <div class="flex items-center gap-1">
-                                <img class="w-5 -mt-1" src="https://img.icons8.com/small/24/000000/fire-heart.png">
-                                1
-                            </div>
-                            <a href="">Like</a>
-                            <a href="">Delete</a>
-                        </div>
-                    </reply>
+        {% if post.reason %}
+        <div class="py-4 border-t border-gray-100">
+            <h2 class="font-semibold text-gray-900 mb-2">
+                {% if post.post_type == 'GIVE' %}提供理由{% else %}依頼理由{% endif %}
+            </h2>
+            <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ post.reason }}</p>
+        </div>
+        {% endif %}
 
-                    <form method="POST" class="replyform flex justify-between" autocomplete="off">
-                        <input type="text" name="reply" placeholder="Add reply ..." maxlength="150">
-                        <button class="block" type="submit">Submit</button>
-                    </form>
-                </div>
-            </div> 
-        </comment>
+        <div class="py-4 border-t border-gray-100 text-sm text-gray-400">
+            投稿日: {{ post.created_at|date:"Y年n月j日" }}
+        </div>
 
+        {% if user.is_authenticated and post.user == user %}
+        <div class="py-4 border-t border-gray-100 flex gap-3">
+            <a href="{% url 'post-edit' post.id %}" 
+               class="flex-1 text-center py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors font-medium">
+                編集
+            </a>
+            <a href="{% url 'post-delete' post.id %}" 
+               class="flex-1 text-center py-2.5 border border-red-300 rounded-lg text-red-600 hover:bg-red-50 transition-colors font-medium">
+                削除
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {

@@ -38,6 +38,10 @@ urlpatterns = [
     path('notifications/', notifications_view, name='notifications'),
     path('api/notifications/unread-count/', notifications_unread_count_view, name='notifications-unread-count'),
     path('notifications/<int:notification_id>/read/', notification_mark_read_view, name='notification-mark-read'),
+    path('chat/<str:post_id>/', chat_room_view, name='chat_room'),
+    path('chat/room/<int:room_id>/', chat_messages_view, name='chat_messages'),
+    path('chat/room/<int:room_id>/api/', chat_messages_api, name='chat_messages_api'),
+    path('chats/', chat_list_view, name='chat_list'),
 ]
 
 if settings.DEBUG:

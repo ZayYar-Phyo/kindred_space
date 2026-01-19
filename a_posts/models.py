@@ -180,6 +180,47 @@ class Notification(models.Model):
         ordering = ['-created_at']
 
 
+class ChatRoom(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='chat_rooms',
+                            help_text='The post this conversation is about')
+    participant1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_rooms_as_p1',
+                                    help_text='Post owner')
+    participant2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='chat_rooms_as_p2',
+                                    help_text='User who initiated the chat')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Chat: {self.participant1.username} & {self.participant2.username} about {self.post.title}"
+
+    class Meta:
+        verbose_name = 'チャットルーム'
+        verbose_name_plural = 'チャットルーム一覧'
+        ordering = ['-updated_at']
+        unique_together = ['post', 'participant1', 'participant2']
+
+    def get_other_participant(self, user):
+        if user == self.participant1:
+            return self.participant2
+        return self.participant1
+
+
+class Message(models.Model):
+    chat_room = models.ForeignKey(ChatRoom, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    content = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender.username}: {self.content[:30]}"
+
+    class Meta:
+        verbose_name = 'メッセージ'
+        verbose_name_plural = 'メッセージ一覧'
+        ordering = ['created_at']
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

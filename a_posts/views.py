@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.utils.http import url_has_allowed_host_and_scheme
-from .models import Post, PostImage, Tag, UserProfile, Review, Follow, Notification
+from .models import Post, PostImage, Tag, UserProfile, Review, Follow, Notification, ChatRoom, Message
 from .forms import *
 from bs4 import BeautifulSoup
 import requests
@@ -463,3 +463,113 @@ def notification_mark_read_view(request, notification_id):
     if notification.link:
         return redirect(notification.link)
     return redirect('notifications')
+
+
+@login_required
+def chat_room_view(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    
+    if post.user == request.user:
+        chat_rooms = ChatRoom.objects.filter(post=post).order_by('-updated_at')
+        if chat_rooms.exists():
+            return render(request, 'a_posts/chat_list.html', {
+                'post': post,
+                'chat_rooms': chat_rooms
+            })
+        else:
+            messages.info(request, 'この投稿についてのチャットはまだありません。')
+            return redirect('post', pk=post_id)
+    
+    chat_room = ChatRoom.objects.filter(
+        post=post,
+        participant1=post.user,
+        participant2=request.user
+    ).first()
+    
+    if not chat_room:
+        chat_room = ChatRoom.objects.create(
+            post=post,
+            participant1=post.user,
+            participant2=request.user
+        )
+    
+    return redirect('chat_messages', room_id=chat_room.id)
+
+
+@login_required
+def chat_messages_view(request, room_id):
+    chat_room = get_object_or_404(ChatRoom, id=room_id)
+    
+    if request.user not in [chat_room.participant1, chat_room.participant2]:
+        messages.error(request, 'このチャットルームにアクセスする権限がありません。')
+        return redirect('home')
+    
+    if request.method == 'POST':
+        content = request.POST.get('message', '').strip()
+        if content:
+            Message.objects.create(
+                chat_room=chat_room,
+                sender=request.user,
+                content=content
+            )
+            chat_room.save()
+    
+    chat_messages = chat_room.messages.all()
+    other_user = chat_room.get_other_participant(request.user)
+    
+    Message.objects.filter(
+        chat_room=chat_room,
+        is_read=False
+    ).exclude(sender=request.user).update(is_read=True)
+    
+    return render(request, 'a_posts/chat_room.html', {
+        'chat_room': chat_room,
+        'messages': chat_messages,
+        'other_user': other_user,
+        'post': chat_room.post
+    })
+
+
+@login_required
+def chat_list_view(request):
+    chat_rooms = ChatRoom.objects.filter(
+        Q(participant1=request.user) | Q(participant2=request.user)
+    ).order_by('-updated_at')
+    
+    return render(request, 'a_posts/chat_list_all.html', {
+        'chat_rooms': chat_rooms
+    })
+
+
+@login_required
+def chat_messages_api(request, room_id):
+    chat_room = get_object_or_404(ChatRoom, id=room_id)
+    
+    if request.user not in [chat_room.participant1, chat_room.participant2]:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+    
+    last_id = request.GET.get('last_id', 0)
+    try:
+        last_id = int(last_id)
+    except ValueError:
+        last_id = 0
+    
+    new_messages = chat_room.messages.filter(id__gt=last_id)
+    
+    Message.objects.filter(
+        chat_room=chat_room,
+        is_read=False
+    ).exclude(sender=request.user).update(is_read=True)
+    
+    messages_data = []
+    for msg in new_messages:
+        messages_data.append({
+            'id': msg.id,
+            'sender_id': msg.sender.id,
+            'sender_username': msg.sender.username,
+            'content': msg.content,
+            'is_mine': msg.sender == request.user,
+            'created_at': msg.created_at.strftime('%H:%M')
+        })
+    
+    return JsonResponse({'messages': messages_data})
