@@ -31,7 +31,7 @@ class PostCreateForm(ModelForm):
             'prefecture': forms.Select(attrs={'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)] h-[3.3rem]'}),
             'latitude': forms.HiddenInput(),
             'longitude': forms.HiddenInput(),
-            'display_area': forms.TextInput(attrs={'placeholder': '市区町村、駅名などを入力 (例: 梅田駅)', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'id': 'location-autocomplete'}),
+            'display_area': forms.TextInput(attrs={'placeholder': '市区町村、駅名などを入力 (例: 梅田駅)', 'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]', 'autocomplete': 'off'}),
         }
     
     def __init__(self, *args, **kwargs):

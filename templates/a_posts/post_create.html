@@ -66,27 +66,18 @@
                 {% endif %}
             </div>
 
-            <!-- Location Search with Google Places Autocomplete -->
-            <div class="mb-4" x-data="{ suggestions: [], showSuggestions: false, inputValue: '' }">
-                <label for="location-autocomplete" class="block mb-2 font-semibold">{{ form.display_area.label }}</label>
+            <!-- Location Search with Autocomplete -->
+            <div class="mb-4">
+                <label for="{{ form.display_area.id_for_label }}" class="block mb-2 font-semibold">{{ form.display_area.label }}</label>
                 <div class="relative">
-                    <input 
-                        type="text" 
-                        id="location-autocomplete"
-                        name="display_area"
-                        placeholder="市区町村、駅名などを入力 (例: 梅田駅)"
-                        class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]"
-                        autocomplete="off"
-                        x-model="inputValue"
-                        value="{{ form.display_area.value|default:'' }}"
-                    />
+                    {{ form.display_area }}
                     <!-- Autocomplete suggestions dropdown -->
                     <div 
                         id="autocomplete-dropdown"
                         class="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto hidden"
                     ></div>
                 </div>
-                <p class="text-sm text-gray-500 mt-1">Google Placesを使って場所を検索します</p>
+                <p class="text-sm text-gray-500 mt-1">地名、駅名、施設名などで検索できます</p>
                 {% if form.display_area.errors %}
                     <ul class="errorlist">
                         {% for error in form.display_area.errors %}
@@ -262,7 +253,7 @@
         const reasonField = document.getElementById('id_reason');
         const latInput = document.getElementById('id_latitude');
         const lngInput = document.getElementById('id_longitude');
-        const locationInput = document.getElementById('location-autocomplete');
+        const locationInput = document.getElementById('id_display_area');
         const prefectureSelect = document.getElementById('id_prefecture');
         const currentLocationBtn = document.getElementById('use-current-location-btn');
         
@@ -406,74 +397,121 @@
         }
     });
 
-    // Google Places Autocomplete initialization
-    function initGooglePlacesAutocomplete() {
-        const input = document.getElementById('location-autocomplete');
+    // OpenStreetMap Nominatim Autocomplete (Free, no API key required)
+    (function initNominatimAutocomplete() {
+        const input = document.getElementById('id_display_area');
         const dropdown = document.getElementById('autocomplete-dropdown');
         const latInput = document.getElementById('id_latitude');
         const lngInput = document.getElementById('id_longitude');
+        const prefectureSelect = document.getElementById('id_prefecture');
         
-        if (!input || !google || !google.maps || !google.maps.places) {
-            console.log('Google Places API not loaded or input not found');
+        if (!input || !dropdown) {
+            console.log('Autocomplete elements not found');
             return;
         }
         
-        const autocomplete = new google.maps.places.Autocomplete(input, {
-            componentRestrictions: { country: 'jp' },
-            fields: ['formatted_address', 'geometry', 'name', 'address_components'],
-            types: ['geocode', 'establishment']
-        });
+        let debounceTimer;
         
-        autocomplete.addListener('place_changed', function() {
-            const place = autocomplete.getPlace();
+        input.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const query = input.value.trim();
             
-            if (!place.geometry || !place.geometry.location) {
-                console.error('No geometry for selected place');
+            if (query.length < 2) {
+                dropdown.classList.add('hidden');
+                dropdown.innerHTML = '';
                 return;
             }
             
-            const lat = place.geometry.location.lat().toFixed(6);
-            const lng = place.geometry.location.lng().toFixed(6);
-            
-            // Update hidden lat/lng fields
-            if (latInput) latInput.value = lat;
-            if (lngInput) lngInput.value = lng;
-            
-            // Update map and marker
-            if (window.__leafletMarker && window.__leafletMap) {
-                window.__leafletMarker.setLatLng([lat, lng]);
-                window.__leafletMap.setView([lat, lng], 15);
-                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
-            }
-            
-            // Try to set prefecture from address components
-            if (place.address_components) {
-                const prefectureSelect = document.getElementById('id_prefecture');
-                for (const component of place.address_components) {
-                    if (component.types.includes('administrative_area_level_1')) {
-                        const prefName = component.long_name;
-                        if (prefectureSelect) {
-                            const prefOption = Array.from(prefectureSelect.options).find(opt => opt.value === prefName);
-                            if (prefOption) {
-                                prefectureSelect.value = prefName;
-                            }
-                        }
-                        break;
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=jp&limit=5&accept-language=ja`;
+                    const res = await fetch(url, { 
+                        headers: { 
+                            'Accept': 'application/json',
+                            'User-Agent': 'KindredSpace/1.0'
+                        } 
+                    });
+                    
+                    if (!res.ok) return;
+                    const results = await res.json();
+                    
+                    if (results.length === 0) {
+                        dropdown.classList.add('hidden');
+                        dropdown.innerHTML = '';
+                        return;
                     }
+                    
+                    dropdown.innerHTML = results.map((place, index) => `
+                        <div class="px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0" 
+                             data-lat="${place.lat}" 
+                             data-lng="${place.lon}"
+                             data-display="${place.display_name}">
+                            <div class="font-medium text-gray-800">${place.display_name.split(',')[0]}</div>
+                            <div class="text-sm text-gray-500 truncate">${place.display_name}</div>
+                        </div>
+                    `).join('');
+                    
+                    dropdown.classList.remove('hidden');
+                    
+                    // Add click handlers to suggestions
+                    dropdown.querySelectorAll('div[data-lat]').forEach(item => {
+                        item.addEventListener('click', function() {
+                            const lat = this.dataset.lat;
+                            const lng = this.dataset.lng;
+                            const displayName = this.dataset.display;
+                            
+                            // Update input with short name
+                            input.value = displayName.split(',')[0];
+                            
+                            // Update hidden fields
+                            if (latInput) latInput.value = parseFloat(lat).toFixed(6);
+                            if (lngInput) lngInput.value = parseFloat(lng).toFixed(6);
+                            
+                            // Update map and marker
+                            if (window.__leafletMarker && window.__leafletMap) {
+                                window.__leafletMarker.setLatLng([lat, lng]);
+                                window.__leafletMap.setView([lat, lng], 15);
+                                setTimeout(() => window.__leafletMap.invalidateSize(), 50);
+                            }
+                            
+                            // Try to extract and set prefecture
+                            const parts = displayName.split(',').map(p => p.trim());
+                            if (prefectureSelect) {
+                                for (const part of parts) {
+                                    const prefOption = Array.from(prefectureSelect.options).find(
+                                        opt => opt.value === part || part.includes(opt.value)
+                                    );
+                                    if (prefOption) {
+                                        prefectureSelect.value = prefOption.value;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            dropdown.classList.add('hidden');
+                        });
+                    });
+                    
+                } catch (e) {
+                    console.error('Nominatim search error:', e);
                 }
-            }
-            
-            // Update the input with cleaned name (without full address)
-            if (place.name && place.name !== place.formatted_address) {
-                input.value = place.name;
+            }, 300); // Debounce 300ms
+        });
+        
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+                dropdown.classList.add('hidden');
             }
         });
-    }
-</script>
-
-<!-- Google Maps API with Places Library -->
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initGooglePlacesAutocomplete&language=ja">
+        
+        // Hide dropdown on escape key
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                dropdown.classList.add('hidden');
+            }
+        });
+    })();
 </script>
 
 {% endblock %}
