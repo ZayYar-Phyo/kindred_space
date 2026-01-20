@@ -118,11 +118,18 @@ def post_create_view(request):
     if request.method == 'POST':
         form = PostCreateForm(request.POST, request.FILES)
         images = request.FILES.getlist('images')
+        post_type = request.POST.get('post_type', 'GIVE')
         
-        if len(images) < 2:
-            image_error = '2枚以上の画像をアップロードしてください。'
-        elif len(images) > 4:
-            image_error = '画像は最大4枚までです。'
+        # Image validation: Required for GIVE mode, optional for REQUEST mode
+        if post_type == 'GIVE':
+            if len(images) < 2:
+                image_error = '2枚以上の画像をアップロードしてください。'
+            elif len(images) > 4:
+                image_error = '画像は最大4枚までです。'
+        else:
+            # REQUEST mode: Images are optional, but max 4 if provided
+            if len(images) > 4:
+                image_error = '画像は最大4枚までです。'
         
         if form.is_valid() and not image_error:
             post = form.save(commit=False)
@@ -130,6 +137,7 @@ def post_create_view(request):
             post.save()
             form.save_m2m()
             
+            # Save images if any were uploaded
             for order, image_file in enumerate(images):
                 PostImage.objects.create(
                     post=post,

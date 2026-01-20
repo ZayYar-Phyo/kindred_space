@@ -3,31 +3,51 @@
 {% block content %}
 
 <h1>投稿を作成</h1>
-<div class="card !p-8" x-data="{ postType: 'GIVE' }">
+<div class="card !p-8" x-data="{ 
+    postType: 'GIVE',
+    acceptableConditions: [],
+    urgency: '',
+    toggleCondition(condition) {
+        if (this.acceptableConditions.includes(condition)) {
+            this.acceptableConditions = this.acceptableConditions.filter(c => c !== condition);
+        } else {
+            this.acceptableConditions.push(condition);
+        }
+        document.getElementById('id_acceptable_condition').value = this.acceptableConditions.join(',');
+    },
+    setUrgency(value) {
+        this.urgency = value;
+        document.getElementById('id_urgency').value = value;
+    },
+    updatePlaceholders() {
+        const titleEl = document.getElementById('id_title');
+        const bodyEl = document.getElementById('id_body');
+        if (this.postType === 'REQUEST') {
+            titleEl.placeholder = '何をお探しですか？（例：引越し用ダンボール、お手伝い）';
+            bodyEl.placeholder = 'あなたのストーリーを教えてください！なぜこれが必要ですか？（例：来週引越しします）';
+        } else {
+            titleEl.placeholder = 'アイテム名（例：IKEAソファ）';
+            bodyEl.placeholder = 'コンディションと詳細を説明してください';
+        }
+    }
+}">
     
-    {% comment %} <div class="flex items-center mb-6">
-        <img class="h-5 object-cover mr-1" src="https://img.icons8.com/small/96/333333/search--v1.png"/>
-        <a href="https://www.flickr.com/explore" target="_blank" class="hover:underline text-gray-500">Find an image on Flickr</a>
-    </div> {% endcomment %}
-
     <!-- Toggle Buttons -->
     <div class="grid grid-cols-2 gap-4 mb-8">
         <button 
             type="button"
-            @click="postType = 'GIVE'; document.getElementById('id_post_type').value = 'GIVE'; document.getElementById('id_reason').placeholder = 'なぜこれを提供しますか？';"
+            @click="postType = 'GIVE'; document.getElementById('id_post_type').value = 'GIVE'; updatePlaceholders();"
             :class="postType === 'GIVE' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
-            {% comment %} <span class="text-4xl mb-2">🎁</span> {% endcomment %}
             <span class="text-xl font-bold">共有</span>
         </button>
         <button 
             type="button"
-            @click="postType = 'REQUEST'; document.getElementById('id_post_type').value = 'REQUEST'; document.getElementById('id_reason').placeholder = 'このアイテム/スキルがなぜ必要ですか？';"
+            @click="postType = 'REQUEST'; document.getElementById('id_post_type').value = 'REQUEST'; updatePlaceholders();"
             :class="postType === 'REQUEST' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
-            {% comment %} <span class="text-4xl mb-2">🙏</span> {% endcomment %}
             <span class="text-xl font-bold">リクエスト</span>
         </button>
     </div>
@@ -35,11 +55,15 @@
     <form method='POST' enctype="multipart/form-data" x-data="{ usingCurrent: false }">
         {% csrf_token %}
         {{ form.post_type }}
+        {{ form.acceptable_condition }}
+        {{ form.urgency }}
         
-        <!-- Title Field -->
+        <!-- Title Field with Dynamic Placeholder -->
         <div class="mb-6">
             <label for="{{ form.title.id_for_label }}" class="block mb-2 font-semibold">{{ form.title.label }}</label>
-            {{ form.title }}
+            <input type="text" name="title" id="id_title" required
+                   :placeholder="postType === 'REQUEST' ? '何をお探しですか？（例：引越し用ダンボール、お手伝い）' : 'アイテム名（例：IKEAソファ）'"
+                   class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]">
             {% if form.title.errors %}
                 <ul class="errorlist">
                     {% for error in form.title.errors %}
@@ -98,12 +122,18 @@
             </label>
         </div>
 
-        <!-- Images Field (2-4 images) - Custom Upload UI -->
+        <!-- Images Field - Dynamic label based on mode -->
         <div class="mb-6" x-data="imageUploader()">
-            <label class="block mb-2 font-semibold">画像（2〜4枚）<span class="text-red-500">*</span></label>
+            <label class="block mb-2 font-semibold">
+                <span x-show="postType === 'GIVE'">商品写真（必須）<span class="text-red-500">*</span></span>
+                <span x-show="postType === 'REQUEST'" x-cloak>参考画像（任意）</span>
+            </label>
+            <p class="text-sm text-gray-500 mb-2" x-show="postType === 'GIVE'">実際の写真を2〜4枚アップロードしてください</p>
+            <p class="text-sm text-gray-500 mb-2" x-show="postType === 'REQUEST'" x-cloak>お探しのものがイメージできる画像があれば追加してください</p>
             
-            <!-- Hidden file input for form submission -->
-            <input type="file" name="images" id="id_images" accept="image/*" multiple required class="hidden">
+            <!-- Hidden file input for form submission (required only for GIVE mode) -->
+            <input type="file" name="images" id="id_images" accept="image/*" multiple 
+                   :required="postType === 'GIVE'" class="hidden">
             <!-- Hidden file input for user interaction -->
             <input type="file" x-ref="fileInput" accept="image/*" multiple class="hidden" @change="handleFileSelect($event)">
             
@@ -211,10 +241,12 @@
             {% endif %}
         </div> {% endcomment %}
 
-        <!-- Body Field -->
+        <!-- Body Field with Dynamic Placeholder -->
         <div class="mb-4">
             <label for="{{ form.body.id_for_label }}" class="block mb-2 font-semibold">{{ form.body.label }}</label>
-            {{ form.body }}
+            <textarea name="body" id="id_body" rows="3" 
+                      :placeholder="postType === 'REQUEST' ? 'あなたのストーリーを教えてください！なぜこれが必要ですか？（例：来週引越しします）' : 'コンディションと詳細を説明してください'"
+                      class="font1 text-1xl w-full rounded-lg p-3 border border-gray-300"></textarea>
             {% if form.body.errors %}
                 <ul class="errorlist">
                     {% for error in form.body.errors %}
@@ -222,6 +254,68 @@
                     {% endfor %}
                 </ul>
             {% endif %}
+        </div>
+        
+        <!-- REQUEST MODE ONLY: Acceptable Condition -->
+        <div class="mb-6" x-show="postType === 'REQUEST'" x-cloak>
+            <label class="block mb-2 font-semibold">許容コンディション</label>
+            <p class="text-sm text-gray-500 mb-3">受け取れるアイテムの状態を選んでください（複数選択可）</p>
+            <div class="flex flex-wrap gap-2">
+                <button type="button" 
+                        @click="toggleCondition('any')"
+                        :class="acceptableConditions.includes('any') ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700 border-gray-300 hover:border-green-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    どんな状態でもOK
+                </button>
+                <button type="button" 
+                        @click="toggleCondition('good')"
+                        :class="acceptableConditions.includes('good') ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700 border-gray-300 hover:border-green-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    良い状態
+                </button>
+                <button type="button" 
+                        @click="toggleCondition('like_new')"
+                        :class="acceptableConditions.includes('like_new') ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-700 border-gray-300 hover:border-green-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    新品同様
+                </button>
+            </div>
+        </div>
+        
+        <!-- REQUEST MODE ONLY: Urgency / Deadline -->
+        <div class="mb-6" x-show="postType === 'REQUEST'" x-cloak>
+            <label class="block mb-2 font-semibold">いつまでに必要ですか？</label>
+            <div class="flex flex-wrap gap-2 mb-3">
+                <button type="button" 
+                        @click="setUrgency('asap')"
+                        :class="urgency === 'asap' ? 'bg-orange-500 text-white border-orange-500' : 'bg-white text-gray-700 border-gray-300 hover:border-orange-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    できるだけ早く
+                </button>
+                <button type="button" 
+                        @click="setUrgency('week')"
+                        :class="urgency === 'week' ? 'bg-yellow-500 text-white border-yellow-500' : 'bg-white text-gray-700 border-gray-300 hover:border-yellow-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    1週間以内
+                </button>
+                <button type="button" 
+                        @click="setUrgency('no_rush')"
+                        :class="urgency === 'no_rush' ? 'bg-blue-500 text-white border-blue-500' : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    急ぎではない
+                </button>
+                <button type="button" 
+                        @click="setUrgency('custom')"
+                        :class="urgency === 'custom' ? 'bg-purple-500 text-white border-purple-500' : 'bg-white text-gray-700 border-gray-300 hover:border-purple-400'"
+                        class="px-4 py-2 rounded-full border-2 transition-all duration-200 text-sm font-medium">
+                    日付を指定
+                </button>
+            </div>
+            <!-- Date picker (shown only when 'custom' is selected) -->
+            <div x-show="urgency === 'custom'" x-cloak class="mt-3">
+                <label class="block mb-2 text-sm text-gray-600">希望日を選択</label>
+                {{ form.deadline_date }}
+            </div>
         </div>
 
         <!-- Tags Field -->
