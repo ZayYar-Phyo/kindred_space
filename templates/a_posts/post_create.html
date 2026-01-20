@@ -3,40 +3,18 @@
 {% block content %}
 
 <h1>投稿を作成</h1>
-<div class="card !p-8" x-data="{ 
-    postType: 'GIVE',
-    acceptableConditions: [],
-    urgency: '',
-    toggleCondition(condition) {
-        if (this.acceptableConditions.includes(condition)) {
-            this.acceptableConditions = this.acceptableConditions.filter(c => c !== condition);
-        } else {
-            this.acceptableConditions.push(condition);
-        }
-        document.getElementById('id_acceptable_condition').value = this.acceptableConditions.join(',');
-    },
-    setUrgency(value) {
-        this.urgency = value;
-        document.getElementById('id_urgency').value = value;
-    },
-    updatePlaceholders() {
-        const titleEl = document.getElementById('id_title');
-        const bodyEl = document.getElementById('id_body');
-        if (this.postType === 'REQUEST') {
-            titleEl.placeholder = '何をお探しですか？（例：引越し用ダンボール、お手伝い）';
-            bodyEl.placeholder = 'あなたのストーリーを教えてください！なぜこれが必要ですか？（例：来週引越しします）';
-        } else {
-            titleEl.placeholder = 'アイテム名（例：IKEAソファ）';
-            bodyEl.placeholder = 'コンディションと詳細を説明してください';
-        }
-    }
-}">
+<div class="card !p-8" 
+     x-data="postTypeManager()"
+     data-initial-post-type="{{ form.post_type.value|default:'GIVE' }}"
+     data-initial-conditions="{{ form.acceptable_condition.value|default:'' }}"
+     data-initial-urgency="{{ form.urgency.value|default:'' }}"
+     x-init="initFromDataAttributes($el)">
     
     <!-- Toggle Buttons -->
     <div class="grid grid-cols-2 gap-4 mb-8">
         <button 
             type="button"
-            @click="postType = 'GIVE'; document.getElementById('id_post_type').value = 'GIVE'; updatePlaceholders();"
+            @click="switchToGive()"
             :class="postType === 'GIVE' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
@@ -44,7 +22,7 @@
         </button>
         <button 
             type="button"
-            @click="postType = 'REQUEST'; document.getElementById('id_post_type').value = 'REQUEST'; updatePlaceholders();"
+            @click="switchToRequest()"
             :class="postType === 'REQUEST' ? 'bg-primary hover:bg-primary-dark text-white' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'"
             class="flex flex-col items-center justify-center p-6 rounded-xl transition-all duration-200 shadow-lg min-h-[120px]"
         >
@@ -62,6 +40,7 @@
         <div class="mb-6">
             <label for="{{ form.title.id_for_label }}" class="block mb-2 font-semibold">{{ form.title.label }}</label>
             <input type="text" name="title" id="id_title" required
+                   value="{{ form.title.value|default:'' }}"
                    :placeholder="postType === 'REQUEST' ? '何をお探しですか？（例：引越し用ダンボール、お手伝い）' : 'アイテム名（例：IKEAソファ）'"
                    class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]">
             {% if form.title.errors %}
@@ -246,7 +225,7 @@
             <label for="{{ form.body.id_for_label }}" class="block mb-2 font-semibold">{{ form.body.label }}</label>
             <textarea name="body" id="id_body" rows="3" 
                       :placeholder="postType === 'REQUEST' ? 'あなたのストーリーを教えてください！なぜこれが必要ですか？（例：来週引越しします）' : 'コンディションと詳細を説明してください'"
-                      class="font1 text-1xl w-full rounded-lg p-3 border border-gray-300"></textarea>
+                      class="font1 text-1xl w-full rounded-lg p-3 border border-gray-300">{{ form.body.value|default:'' }}</textarea>
             {% if form.body.errors %}
                 <ul class="errorlist">
                     {% for error in form.body.errors %}
@@ -338,6 +317,76 @@
 
 
 <script>
+    // Post Type Manager - handles GIVE vs REQUEST mode
+    function postTypeManager() {
+        return {
+            postType: 'GIVE',
+            acceptableConditions: [],
+            urgency: '',
+            
+            initFromDataAttributes(el) {
+                // Read initial values from data attributes (set by Django template)
+                const initialPostType = el.dataset.initialPostType || 'GIVE';
+                const initialConditions = el.dataset.initialConditions || '';
+                const initialUrgency = el.dataset.initialUrgency || '';
+                
+                // Set state from data attributes
+                this.postType = initialPostType;
+                this.acceptableConditions = initialConditions.split(',').filter(c => c.trim());
+                this.urgency = initialUrgency;
+                
+                // Sync hidden inputs with initial values
+                const postTypeEl = document.getElementById('id_post_type');
+                const acceptableConditionEl = document.getElementById('id_acceptable_condition');
+                const urgencyEl = document.getElementById('id_urgency');
+                
+                if (postTypeEl) postTypeEl.value = this.postType;
+                if (acceptableConditionEl) acceptableConditionEl.value = this.acceptableConditions.join(',');
+                if (urgencyEl) urgencyEl.value = this.urgency;
+                
+                console.log('[PostTypeManager] Initialized from data attributes:', {
+                    postType: this.postType,
+                    acceptableConditions: this.acceptableConditions,
+                    urgency: this.urgency
+                });
+            },
+            
+            toggleCondition(condition) {
+                if (this.acceptableConditions.includes(condition)) {
+                    this.acceptableConditions = this.acceptableConditions.filter(c => c !== condition);
+                } else {
+                    this.acceptableConditions.push(condition);
+                }
+                document.getElementById('id_acceptable_condition').value = this.acceptableConditions.join(',');
+            },
+            
+            setUrgency(value) {
+                this.urgency = value;
+                document.getElementById('id_urgency').value = value;
+            },
+            
+            switchToGive() {
+                this.postType = 'GIVE';
+                document.getElementById('id_post_type').value = 'GIVE';
+                this.clearRequestFields();
+            },
+            
+            switchToRequest() {
+                this.postType = 'REQUEST';
+                document.getElementById('id_post_type').value = 'REQUEST';
+            },
+            
+            clearRequestFields() {
+                this.acceptableConditions = [];
+                this.urgency = '';
+                document.getElementById('id_acceptable_condition').value = '';
+                document.getElementById('id_urgency').value = '';
+                const deadlineEl = document.getElementById('id_deadline_date');
+                if (deadlineEl) deadlineEl.value = '';
+            }
+        };
+    }
+
     // Image Uploader Alpine.js Component
     function imageUploader() {
         return {
