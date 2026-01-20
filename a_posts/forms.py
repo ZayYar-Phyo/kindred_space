@@ -11,7 +11,8 @@ class PostCreateForm(ModelForm):
         model = Post
         fields = [
             'post_type', 'title', 'reason', 'body', 'tags', 'prefecture',
-            'latitude', 'longitude', 'show_general_area_only', 'display_area'
+            'latitude', 'longitude', 'show_general_area_only', 'display_area',
+            'acceptable_condition', 'urgency', 'deadline_date'
         ]
         labels = {
             'title': 'タイトル',
@@ -24,6 +25,9 @@ class PostCreateForm(ModelForm):
             'longitude': '経度',
             'show_general_area_only': '大まかな地域のみ表示',
             'display_area': '市区町村・駅名など',
+            'acceptable_condition': '許容コンディション',
+            'urgency': 'いつまでに必要ですか？',
+            'deadline_date': '希望日',
         }
         widgets = {
             'post_type':
@@ -67,6 +71,16 @@ class PostCreateForm(ModelForm):
                     'placeholder': '市区町村、駅名などを入力 (例: 梅田駅)',
                     'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]',
                     'autocomplete': 'off'
+                }),
+            'acceptable_condition':
+            forms.HiddenInput(),
+            'urgency':
+            forms.HiddenInput(),
+            'deadline_date':
+            forms.DateInput(
+                attrs={
+                    'type': 'date',
+                    'class': 'w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]'
                 }),
         }
 

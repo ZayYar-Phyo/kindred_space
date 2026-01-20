@@ -11,6 +11,13 @@ class Post(models.Model):
         ('REQUEST', 'I need to REQUEST'),
     ]
     
+    URGENCY_CHOICES = [
+        ('asap', 'できるだけ早く'),
+        ('week', '1週間以内'),
+        ('no_rush', '急ぎではない'),
+        ('custom', '日付を指定'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
     title = models.CharField(max_length=500, blank=True, null=True)
     artist = models.CharField(max_length=500, null=True, blank=True)
@@ -25,6 +32,9 @@ class Post(models.Model):
     display_area = models.CharField(max_length=255, blank=True, default='')
     body = models.TextField()
     tags = models.ManyToManyField('Tag')
+    acceptable_condition = models.CharField(max_length=100, blank=True, default='', help_text='Acceptable condition for REQUEST posts (any, good, like_new)')
+    urgency = models.CharField(max_length=20, choices=URGENCY_CHOICES, blank=True, default='', help_text='Urgency level for REQUEST posts')
+    deadline_date = models.DateField(null=True, blank=True, help_text='Specific deadline date for REQUEST posts')
     created_at = models.DateTimeField(auto_now_add=True)
     id = models.CharField(max_length=100, default=uuid.uuid4, unique=True,  primary_key=True, editable=False)
 
