@@ -41,7 +41,7 @@
             <label for="{{ form.title.id_for_label }}" class="block mb-2 font-semibold">{{ form.title.label }}</label>
             <input type="text" name="title" id="id_title" required
                    value="{{ form.title.value|default:'' }}"
-                   :placeholder="postType === 'REQUEST' ? '何をお探しですか？（例：引越し用ダンボール、お手伝い）' : 'アイテム名（例：IKEAソファ）'"
+                   :placeholder="postType === 'REQUEST' ? '何をお探しですか？（例：引越し用ダンボール、お手伝い）' : 'アイテム名'"
                    class="w-full rounded-lg p-3 bg-[rgba(232,240,254,1)]">
             {% if form.title.errors %}
                 <ul class="errorlist">
